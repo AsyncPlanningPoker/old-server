@@ -1,0 +1,27 @@
+version: '3.1'
+
+services:
+
+  db-postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=planning-poker-dev
+
+  db-mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=planning-poker-dev
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
