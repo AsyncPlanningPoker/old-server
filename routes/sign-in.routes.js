@@ -3,6 +3,7 @@ module.exports = app => {
   
     var router = require("express").Router();
   
+   
     // New User
     router.post("/", userController.create);
   
@@ -19,7 +20,7 @@ module.exports = app => {
     router.delete("/:id", userController.delete);
   
     // Auth (user:pass)
-    router.get("/auth/:username&:password", userController.authenticate);
+    router.post("/auth", userController.authenticate);
 
     app.use('/api/users', router);
   };
