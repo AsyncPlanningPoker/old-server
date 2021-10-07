@@ -27,6 +27,7 @@
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.7.1",
     "sequelize": "^6.6.5",
+<<<<<<< HEAD
     "sequelize-cli": "^6.2.0"
   },
   "devDependencies": {
@@ -35,6 +36,12 @@
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
+=======
+    "sequelize-cli": "^6.2.0",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
+>>>>>>> 61fe5ab2c6637baf9d37228ab4b4230c2e614534
     "nodemon": "^2.0.13"
   }
 }
