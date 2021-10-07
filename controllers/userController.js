@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const db = require('../models/sequelizeConfig')
 const jwt = require('jsonwebtoken') // JSON Web Token Module
 const secret = 'planning-poker-secret'
@@ -16,38 +15,6 @@ exports.create = (req, res) => {
     password: req.body.password,
     email: req.body.email
   }
-=======
-const db = require("../models/sequelizeConfig");
-const jwt = require('jsonwebtoken'); // JSON Web Token Module
-const secret = 'planning-poker-secret'
-const Users = db.users;
-const Op = db.Sequelize.Op;
-
-exports.create = (req, res) => {
-    if (!req.body.username && !req.body.password && req.body.email) {
-      res.status(400).send({
-        message: "Request precisa incluir user,pass e email!"
-      });
-      return;
-    }
-  
-    const User = {
-      name: req.body.username,
-      password: req.body.password,
-      email: req.body.email
-    };
-  
-    Users.create(User)
-      .then(data => {
-        res.send(data);})
-      .catch(err => {
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while creating the User."
-        });
-      });
-  };
->>>>>>> 61fe5ab2c6637baf9d37228ab4b4230c2e614534
 
   Users.create(User)
     .then(data => {
@@ -146,7 +113,6 @@ exports.delete = (req, res) => {
 }
 
 exports.authenticate = (req, res) => {
-<<<<<<< HEAD
   const name = req.body.username
   const password = req.body.password
 
@@ -168,28 +134,3 @@ exports.authenticate = (req, res) => {
       })
     })
 }
-=======
-    const name = req.body.username;
-    const password = req.body.password;
-
-
-    Users.findOne({ where: { name , password} })
-      .then(data => {
-        if (data) {
-          //JWT
-          const token = jwt.sign({name}, secret, {expiresIn: '12h'});
-          res.status(200).json({ token });
-        } else {
-          
-          res.status(404).send({
-            message: `Cannot find User with name=${name} and password=${password}.`
-          });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Error retrieving User with name=" + name + " Error: " + err
-        });
-      });
-  };
->>>>>>> 61fe5ab2c6637baf9d37228ab4b4230c2e614534
