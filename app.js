@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //Lista de Routes
 require("./routes/sign-in.routes")(app);
-
+require("./routes/story.routes")(app);
 
 
 //Healthcheck

@@ -1,19 +1,21 @@
 const db = require("../models/sequelizeConfig");
+const jwt = require('jsonwebtoken'); // JSON Web Token Module
+const secret = 'planning-poker-secret'
 const Users = db.users;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
-    // Validate request
-    if (!req.body.name) {
+    if (!req.body.username && !req.body.password && req.body.email) {
       res.status(400).send({
-        message: "Content can not be empty!"
+        message: "Request precisa incluir user,pass e email!"
       });
       return;
     }
   
     const User = {
-      name: req.body.name,
+      name: req.body.username,
       password: req.body.password,
+      email: req.body.email
     };
   
     Users.create(User)
@@ -110,16 +112,18 @@ exports.delete = (req, res) => {
   };
 
 exports.authenticate = (req, res) => {
-    const name = req.params.username;
-    const password = req.params.password;
+    const name = req.body.username;
+    const password = req.body.password;
 
-    Users.findOne({ where: { name: name , password : password} })
+
+    Users.findOne({ where: { name , password} })
       .then(data => {
         if (data) {
-          res.status(200).send({
-            message: (data)
-          });
+          //JWT
+          const token = jwt.sign({name}, secret, {expiresIn: '12h'});
+          res.status(200).json({ token });
         } else {
+          
           res.status(404).send({
             message: `Cannot find User with name=${name} and password=${password}.`
           });
