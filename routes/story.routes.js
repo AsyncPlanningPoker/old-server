@@ -1,15 +1,12 @@
 const verifyJwt = require('../middlewares/verifyJwt')
+const storyController = require('../controllers/storyController')
+const router = require('express').Router()
 
 module.exports = app => {
-    const storyController = require("../controllers/storyController");
-  
-    var router = require("express").Router();
-    
-    
-    router.use(verifyJwt)
+  router.use(verifyJwt)
 
-    // New Story
-    router.post("/", storyController.create);
-    
-    app.use('/api/story', router);
-  };
+  // New Story
+  router.post('/', storyController.create)
+
+  app.use('/api/story', router)
+}

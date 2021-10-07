@@ -1,32 +1,27 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const app = express();
-const PORT = process.env.PORT || 3000;
-const db = require("./models/sequelizeConfig");
+const express = require('express')
+const cors = require('cors')
+const helmet = require('helmet')
+const app = express()
+const PORT = process.env.PORT || 3000
+const db = require('./models/sequelizeConfig')
 
-db.sequelize.sync({ force: true }).then(() => {console.log("Drop and re-sync db.");});
+db.sequelize.sync({ force: true }).then(() => { console.log('Drop and re-sync db.') })
 
-var corsOptions = {
-  origin: "http://localhost:${PORT}"
-};
+app.set('json spaces', 2)
+app.use(cors())
+app.use(helmet())
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Lista de Routes
+require('./routes/sign-in.routes')(app)
+require('./routes/story.routes')(app)
 
-//Lista de Routes
-require("./routes/sign-in.routes")(app);
-require("./routes/story.routes")(app);
-
-
-//Healthcheck
-app.get("/", (req, res) => {
-  res.json({ message: "Home Page" });
-});
-
+// Healthcheck
+app.get('/', (req, res) => {
+  res.json({ message: 'Home Page' })
+})
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});
-
+  console.log(`Server is running on port ${PORT}.`)
+})
