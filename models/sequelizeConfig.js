@@ -20,5 +20,7 @@ db.sequelize = sequelize
 
 // Tables definidas aqui (db.tablename = model.js)
 db.users = require('./UserModel.js')(sequelize, Sequelize)
+db.pokers = require('./PokerModel.js')(sequelize, Sequelize)
+db.stories = require('./StorieModel.js')(sequelize, Sequelize)
 
 module.exports = db
