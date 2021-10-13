@@ -4,40 +4,23 @@ const secret = 'planning-poker-secret'
 const Users = db.users
 
 exports.create = (req, res) => {
-  if (!req.body.username && !req.body.password && req.body.email) {
-    res.status(400).send({
-      message: 'Request precisa incluir user,pass e email!'
-    })
-    return
+  if (!req.body.username && !req.body.password && !req.body.email) {
+    res.status(405).send({ error: true, message: 'Erro no corpo da requisição.' })
   }
-  const User = {
-    name: req.body.username,
+
+  const userData = {
+    name: req.body.name,
     password: req.body.password,
     email: req.body.email
   }
 
-  Users.create(User)
+  Users.create(userData)
     .then(data => {
-      res.send(data)
+      res.status(201).json({ success: true })
     })
     .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || 'Some error occurred while creating the User.'
-      })
-    })
-}
-
-exports.findAll = (req, res) => {
-  Users.findAll()
-    .then(data => {
-      res.send(data)
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || 'Some error occurred while retrieving Users.'
-      })
+      console.log(err.message)
+      res.status(500).send({ error: true, message: 'Erro ao criar o usuário.' })
     })
 }
 
@@ -47,90 +30,35 @@ exports.findOne = (req, res) => {
   Users.findByPk(id)
     .then(data => {
       if (data) {
-        res.send(data)
+        const { id, name, email } = data
+        res.send(200).json({ id, name, email })
       } else {
-        res.status(404).send({
-          message: `Cannot find User with id=${id}.`
-        })
+        res.status(404).send({ error: true, message: `Não foi possível localizar o usuário com o id=${id}.` })
       }
     })
     .catch(err => {
       console.log(err)
-      res.status(500).send({
-        message: 'Error retrieving User with id=' + id
-      })
-    })
-}
-
-exports.update = (req, res) => {
-  const id = req.params.id
-
-  Users.update(req.body, {
-    where: { id: id }
-  })
-    .then(num => {
-      if (num === 1) {
-        res.send({
-          message: 'User was updated successfully.'
-        })
-      } else {
-        res.send({
-          message: `Cannot update User with id=${id}`
-        })
-      }
-    })
-    .catch(err => {
-      console.log(err)
-      res.status(500).send({
-        message: 'Error updating User with id=' + id
-      })
-    })
-}
-
-exports.delete = (req, res) => {
-  const id = req.params.id
-
-  Users.destroy({
-    where: { id: id }
-  })
-    .then(num => {
-      if (num === 1) {
-        res.send({
-          message: 'User was deleted successfully!'
-        })
-      } else {
-        res.send({
-          message: `Cannot delete User with id=${id}.`
-        })
-      }
-    })
-    .catch(err => {
-      console.log(err)
-      res.status(500).send({
-        message: 'Could not delete User with id=' + id
-      })
+      res.status(500).send({ error: true, message: `Error para retornar o usuário com o id=${id}` })
     })
 }
 
 exports.authenticate = (req, res) => {
-  const name = req.body.username
+  const name = req.body.name
+  const email = req.body.email
   const password = req.body.password
 
-  Users.findOne({ where: { name, password } })
+  Users.findOne({ where: { email, password } })
     .then(data => {
       if (data) {
         // JWT
-        const token = jwt.sign({ name }, secret, { expiresIn: '12h' })
+        const token = jwt.sign({ name, email }, secret, { expiresIn: '12h' })
         res.status(200).json({ token })
       } else {
-        res.status(404).send({
-          message: `Cannot find User with name=${name} and password=${password}.`
-        })
+        res.status(404).json({ error: true, message: `Não foi possível autenticar o usuário=${name}.` })
       }
     })
     .catch(err => {
-      res.status(500).send({
-        message: 'Error retrieving User with name=' + name + ' Error: ' + err
-      })
+      console.log(err)
+      res.status(500).json({ error: true, message: `Erro ao localizar o usuário ${name} no banco de dados.` })
     })
 }
