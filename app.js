@@ -3,9 +3,9 @@ const cors = require('cors')
 const helmet = require('helmet')
 const app = express()
 const PORT = process.env.PORT || 3000
-const db = require('./models/sequelizeConfig')
 
-db.sequelize.sync({ force: true }).then(() => { console.log('Drop and re-sync db.') })
+// const db = require('./models/sequelizeConfig')
+// db.sequelize.sync({ force: true }).then(() => { console.log('Drop and re-sync db.') })
 
 app.set('json spaces', 2)
 app.use(cors())
@@ -18,10 +18,13 @@ require('./routes/sign-in.routes')(app)
 require('./routes/story.routes')(app)
 
 // Healthcheck
-app.get('/', (req, res) => {
-  res.json({ message: 'Home Page' })
+app.get('/health', (req, res) => {
+  res.status(200).json({ message: 'Server is running!' })
 })
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`)
 })
+
+// for test
+module.exports = app

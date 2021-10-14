@@ -31,14 +31,14 @@ exports.findOne = (req, res) => {
     .then(data => {
       if (data) {
         const { id, name, email } = data
-        res.send(200).json({ id, name, email })
+        res.status(200).json({ id, name, email })
       } else {
-        res.status(404).send({ error: true, message: `Não foi possível localizar o usuário com o id=${id}.` })
+        res.status(404).json({ error: true, message: `Não foi possível localizar o usuário com o id=${id}.` })
       }
     })
     .catch(err => {
       console.log(err)
-      res.status(500).send({ error: true, message: `Error para retornar o usuário com o id=${id}` })
+      res.status(500).json({ error: true, message: `Error para retornar o usuário com o id=${id}` })
     })
 }
 
