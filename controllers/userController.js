@@ -1,4 +1,4 @@
-const db = require('../models/sequelizeConfig')
+const db = require('../database/models')
 const jwt = require('jsonwebtoken') // JSON Web Token Module
 const secret = 'planning-poker-secret'
 const Users = db.users
