@@ -3,7 +3,7 @@ const storyController = require('../controllers/storyController')
 const router = require('express').Router()
 
 module.exports = app => {
-  router.use(verifyJwt)
+  // router.use(verifyJwt)
 
   // New Story
   router.post('/', storyController.create)

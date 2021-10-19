@@ -1,4 +1,4 @@
-const db = require('../models/sequelizeConfig')
+const db = require('../database/models')
 const jwt = require('jsonwebtoken') // JSON Web Token Module
 const secret = 'planning-poker-secret'
 const Users = db.users
@@ -16,7 +16,8 @@ exports.create = (req, res) => {
 
   Users.create(userData)
     .then(data => {
-      res.status(201).json({ success: true })
+      const userId = data.dataValues.id
+      res.status(201).json({ success: true, id: userId })
     })
     .catch(err => {
       console.log(err.message)
@@ -31,14 +32,14 @@ exports.findOne = (req, res) => {
     .then(data => {
       if (data) {
         const { id, name, email } = data
-        res.send(200).json({ id, name, email })
+        res.status(200).json({ id, name, email })
       } else {
-        res.status(404).send({ error: true, message: `Não foi possível localizar o usuário com o id=${id}.` })
+        res.status(404).json({ error: true, message: `Não foi possível localizar o usuário com o id=${id}.` })
       }
     })
     .catch(err => {
       console.log(err)
-      res.status(500).send({ error: true, message: `Error para retornar o usuário com o id=${id}` })
+      res.status(500).json({ error: true, message: `Error para retornar o usuário com o id=${id}` })
     })
 }
 

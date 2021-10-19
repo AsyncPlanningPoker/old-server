@@ -1,9 +1,9 @@
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
-const app = express()
+const db = require('./database/models')
 const PORT = process.env.PORT || 3000
-const db = require('./models/sequelizeConfig')
+const app = express()
 
 db.sequelize.sync({ force: true }).then(() => { console.log('Drop and re-sync db.') })
 
@@ -18,10 +18,17 @@ require('./routes/sign-in.routes')(app)
 require('./routes/story.routes')(app)
 
 // Healthcheck
-app.get('/', (req, res) => {
-  res.json({ message: 'Home Page' })
+app.get('/health', (req, res) => {
+  res.status(200).json({ message: 'Server is running!' })
 })
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`)
+db.sequelize.authenticate().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}.`)
+  })
+}).catch(err => {
+  console.error('Unable to connect to the database:', err)
 })
+
+// for test
+module.exports = app
