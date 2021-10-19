@@ -1,4 +1,4 @@
-const db = require('../models/sequelizeConfig')
+const db = require('../database/models')
 const jwt = require('jsonwebtoken') // JSON Web Token Module
 const secret = 'planning-poker-secret'
 const Users = db.users
@@ -16,7 +16,8 @@ exports.create = (req, res) => {
 
   Users.create(userData)
     .then(data => {
-      res.status(201).json({ success: true })
+      const userId = data.dataValues.id
+      res.status(201).json({ success: true, id: userId })
     })
     .catch(err => {
       console.log(err.message)
