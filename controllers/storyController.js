@@ -1,25 +1,9 @@
-const db = require('../models/sequelizeConfig')
+const db = require('../database/models')
 const Stories = db.stories
+const Poker = db.pokers
 
 exports.create = (req, res) => {
-  if (!req.body.name && !req.body.description && !req.body.idPoker) {
-    res.status(405).send({ error: true, message: 'Erro no corpo da requisição.' })
-  }
-
-  const storyData = {
-    name: req.body.name,
-    description: req.body.description,
-    idPoker: req.body.idPoker
-  }
-
-  Stories.create(storyData)
-    .then(data => {
-      res.status(201).json({ success: true })
-    })
-    .catch(err => {
-      console.log(err.message)
-      res.status(500).send({ error: true, message: 'Erro ao criar a story.' })
-    })
+  create(req, res)
 }
 
 exports.findOne = (req, res) => {
@@ -28,8 +12,7 @@ exports.findOne = (req, res) => {
   Stories.findByPk(id)
     .then(data => {
       if (data) {
-        const { id, name, description, idPoker } = data
-        res.send(200).json({ id, name, description, idPoker })
+        res.status(200).send({ data })
       } else {
         res.status(404).send({ error: true, message: `Não foi possível localizar a story com o id=${id}.` })
       }
@@ -40,30 +23,13 @@ exports.findOne = (req, res) => {
     })
 }
 
-exports.findByPokerId = (req, res) => {
-  const pokerId = req.params.id
-
-  Stories.findAll({ where: { idPoker: pokerId } })
-    .then(data => {
-      if (data) {
-        res.send(200).json(data)
-      } else {
-        res.status(404).send({ error: true, message: `Não foi possível localizar stories para o projeto=${pokerId}.` })
-      }
-    })
-    .catch(err => {
-      console.log(err)
-      res.status(500).send({ error: true, message: `Error para retornar stories do projeto=${pokerId}` })
-    })
-}
-
 exports.deleteStory = (req, res) => {
   const id = req.params.id
 
-  Stories.destroy({where: {id: id}})
+  Stories.destroy({ where: { id: id } })
     .then(data => {
       if (data) {
-        res.send(200).json(data)
+        res.sendStatus(200)
       } else {
         res.status(404).send({ error: true, message: `Não foi possível localizar a story com o id=${id}.` })
       }
@@ -74,3 +40,35 @@ exports.deleteStory = (req, res) => {
     })
 }
 
+async function create (req, res) {
+  if (!req.body.name && !req.body.description && !req.body.idPoker) {
+    res.status(405).send({ error: true, message: 'Erro no corpo da requisição.' })
+  }
+
+  if (!await pokerIdExists(req.body.idPoker)) {
+    res.status(404).send({ error: true, message: 'PokerId nao existe' })
+    return
+  }
+
+  const storyData = {
+    name: req.body.name,
+    description: req.body.description,
+    idPoker: req.body.idPoker
+  }
+
+  Stories.create(storyData)
+    .then(data => {
+      const storyId = data.dataValues.id
+      res.status(201).send({ success: true, id: storyId })
+    })
+    .catch(err => {
+      console.log(err.message)
+      res.status(500).send({ error: true, message: 'Erro ao criar a story.' })
+    })
+}
+
+async function pokerIdExists (pokerId) {
+  if (await Poker.findByPk(pokerId) !== null) {
+    return true
+  }
+}

@@ -3,8 +3,9 @@ const secret = 'planning-poker-secret'
 
 module.exports =
 function (req, res, next) {
-  const authorization = req.headers.Authorization
-  const token = authorization.split(' ')[1]
+  const authorization = req.headers.authorization
+  const token = authorization
+  console.log(token)
   jwt.verify(token, secret, (err, decoded) => {
     if (err) {
       res.status(401).json({ error: true, errorMessage: 'Invalid Token' })
