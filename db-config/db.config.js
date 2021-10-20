@@ -1,8 +1,8 @@
 module.exports = {
   HOST: 'localhost',
-  PORT: 5432,
-  USER: 'postgres',
-  PASSWORD: 'password',
+  PORT: 5431,
+  USER: 'root',
+  PASSWORD: 'root',
   DB: 'planning-poker-dev',
   dialect: 'postgres',
   pool: {

@@ -8,8 +8,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     name: {
       type: Sequelize.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     email: {
       type: Sequelize.STRING,
@@ -21,6 +20,9 @@ module.exports = (sequelize, Sequelize) => {
     },
     password: {
       allowNull: false,
+      type: Sequelize.STRING
+    },
+    salt: {
       type: Sequelize.STRING
     }
   })

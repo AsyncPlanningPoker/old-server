@@ -2,16 +2,21 @@ const db = require('../database/models')
 const jwt = require('jsonwebtoken') // JSON Web Token Module
 const secret = 'planning-poker-secret'
 const Users = db.users
+const bcrypt = require('bcrypt');
 
 exports.create = (req, res) => {
   if (!req.body.username && !req.body.password && !req.body.email) {
     res.status(405).send({ error: true, message: 'Erro no corpo da requisição.' })
   }
 
+  const salt = bcrypt.genSaltSync();
+  const passwordHash = bcrypt.hashSync(req.body.password, salt);
+
   const userData = {
     name: req.body.name,
-    password: req.body.password,
-    email: req.body.email
+    password: passwordHash,
+    email: req.body.email,
+    salt: salt
   }
 
   Users.create(userData)
@@ -20,7 +25,7 @@ exports.create = (req, res) => {
       res.status(201).json({ success: true, id: userId })
     })
     .catch(err => {
-      console.log(err.message)
+      console.log(err)
       res.status(500).send({ error: true, message: 'Erro ao criar o usuário.' })
     })
 }
@@ -44,22 +49,29 @@ exports.findOne = (req, res) => {
 }
 
 exports.authenticate = (req, res) => {
-  const name = req.body.name
   const email = req.body.email
   const password = req.body.password
 
-  Users.findOne({ where: { email, password } })
+  Users.findOne({ where: { email} })
     .then(data => {
       if (data) {
-        // JWT
-        const token = jwt.sign({ name, email }, secret, { expiresIn: '12h' })
-        res.status(200).json({ token })
+        const user = data.dataValues;
+        // Check Password
+        const hashPassword = bcrypt.hashSync(password, user.salt);
+        if(user.password != hashPassword){
+          res.status(404).json({ error: true, message: `Senha inválida` })
+        } else {
+          // JWT
+          const name = user.name;
+          const token = jwt.sign({ name, email }, secret, { expiresIn: '12h' })
+          res.status(200).json({ token })
+        }
       } else {
-        res.status(404).json({ error: true, message: `Não foi possível autenticar o usuário=${name}.` })
+        res.status(404).json({ error: true, message: `Não foi possível autenticar o usuário=${email}.` })
       }
     })
     .catch(err => {
       console.log(err)
-      res.status(500).json({ error: true, message: `Erro ao localizar o usuário ${name} no banco de dados.` })
+      res.status(500).json({ error: true, message: `Erro ao localizar o usuário ${email} no banco de dados.` })
     })
 }
