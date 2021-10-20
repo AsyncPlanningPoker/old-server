@@ -1,5 +1,11 @@
 module.exports = (sequelize, Sequelize) => {
-  const Storie = sequelize.define('stories', {
+  const Story = sequelize.define('stories', {
+    id: {
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
+      allowNull: false,
+      primaryKey: true
+    },
     name: {
       type: Sequelize.STRING
     },
@@ -10,5 +16,5 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING
     }
   })
-  return Storie
+  return Story
 }

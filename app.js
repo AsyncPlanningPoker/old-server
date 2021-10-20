@@ -5,6 +5,9 @@ const db = require('./database/models')
 const PORT = process.env.PORT || 3000
 const app = express()
 
+// For now, remove when merging to master
+db.sequelize.sync({ force: true }).then(() => { console.log('Drop and re-sync db.') })
+
 app.set('json spaces', 2)
 app.use(cors())
 app.use(helmet())
@@ -14,6 +17,7 @@ app.use(express.urlencoded({ extended: true }))
 // Lista de Routes
 require('./routes/sign-in.routes')(app)
 require('./routes/story.routes')(app)
+require('./routes/poker.routes')(app)
 
 // Healthcheck
 app.get('/health', (req, res) => {
