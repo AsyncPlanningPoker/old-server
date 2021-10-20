@@ -2,15 +2,15 @@ const db = require('../database/models')
 const jwt = require('jsonwebtoken') // JSON Web Token Module
 const secret = 'planning-poker-secret'
 const Users = db.users
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt')
 
 exports.create = (req, res) => {
   if (!req.body.username && !req.body.password && !req.body.email) {
     res.status(405).send({ error: true, message: 'Erro no corpo da requisição.' })
   }
 
-  const salt = bcrypt.genSaltSync();
-  const passwordHash = bcrypt.hashSync(req.body.password, salt);
+  const salt = bcrypt.genSaltSync()
+  const passwordHash = bcrypt.hashSync(req.body.password, salt)
 
   const userData = {
     name: req.body.name,
@@ -52,17 +52,17 @@ exports.authenticate = (req, res) => {
   const email = req.body.email
   const password = req.body.password
 
-  Users.findOne({ where: { email} })
+  Users.findOne({ where: { email } })
     .then(data => {
       if (data) {
-        const user = data.dataValues;
+        const user = data.dataValues
         // Check Password
         const hashPassword = bcrypt.hashSync(password, user.salt);
-        if(user.password != hashPassword){
-          res.status(404).json({ error: true, message: `Senha inválida` })
+        if (user.password !== hashPassword) {
+          res.status(404).json({ error: true, message: 'Senha inválida' })
         } else {
           // JWT
-          const name = user.name;
+          const name = user.name
           const token = jwt.sign({ name, email }, secret, { expiresIn: '12h' })
           res.status(200).json({ token })
         }

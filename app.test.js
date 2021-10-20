@@ -1,6 +1,5 @@
 const request = require('supertest')
 const app = require('./app')
-const db = require('./database/models')
 
 describe('Health Check', () => {
   it('Get health route', async () => {
@@ -12,10 +11,6 @@ describe('Health Check', () => {
 
 describe('Users', () => {
   let userId = null
-
-  beforeAll(async () => {
-    await db.sequelize.sync({ force: true })
-  })
   
   it('Create', async () => {
     const response = await request(app).post('/api/users').send({ name: 'ufabc', password: 'ufabc', email: 'ufabc@ufabc.com' })

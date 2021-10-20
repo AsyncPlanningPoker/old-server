@@ -6,6 +6,7 @@ module.exports = {
     username: 'postgres',
     database: 'planning-poker-dev',
     dialect: 'postgres',
+    logging: false,
     define: {
       freezeTableName: true,
       paranoid: true,
