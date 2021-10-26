@@ -57,7 +57,7 @@ exports.authenticate = (req, res) => {
       if (data) {
         const user = data.dataValues
         // Check Password
-        const hashPassword = bcrypt.hashSync(password, user.salt);
+        const hashPassword = bcrypt.hashSync(password, user.salt)
         if (user.password !== hashPassword) {
           res.status(404).json({ error: true, message: 'Senha inválida' })
         } else {
