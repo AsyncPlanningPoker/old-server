@@ -1,12 +1,12 @@
 <h1 align="center">Planning Poker Assíncrono - API</h1>
 
-API responsável por realizar as ações de CRUD do Planning Poker.
-
 <h4 align="center"> 
 	🚧 Em construção... 🚧
 </h4>
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/LabEs-2021-03/planning-poker-server) ![Issues](https://img.shields.io/github/issues/LabEs-2021-03/planning-poker-server)
+
+API responsável por realizar as ações de CRUD do Planning Poker.
 
 ## Índice
 
