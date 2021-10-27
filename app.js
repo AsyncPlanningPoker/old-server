@@ -18,6 +18,7 @@ app.use(express.urlencoded({ extended: true }))
 require('./routes/sign-in.routes')(app)
 require('./routes/story.routes')(app)
 require('./routes/poker.routes')(app)
+require('./routes/vote.routes')(app)
 
 // Healthcheck
 app.get('/health', (req, res) => {
