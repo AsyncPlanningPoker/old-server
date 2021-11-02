@@ -11,5 +11,8 @@ module.exports = app => {
   // Auth (user:pass)
   router.post('/auth', userController.authenticate)
 
+  // Verify Email  (code)
+   router.get('/verifyEmail/:code', userController.verifyEmail)
+
   app.use('/api/users', router)
 }

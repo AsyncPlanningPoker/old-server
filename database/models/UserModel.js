@@ -18,6 +18,15 @@ module.exports = (sequelize, Sequelize) => {
         isEmail: true
       }
     },
+    verifiedEmail: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    verifyEmailCode: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
     password: {
       allowNull: false,
       type: Sequelize.STRING
