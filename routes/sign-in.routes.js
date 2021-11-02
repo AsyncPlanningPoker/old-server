@@ -14,5 +14,11 @@ module.exports = app => {
   // Verify Email  (code)
    router.get('/verifyEmail/:code', userController.verifyEmail)
 
+  // Recover User
+  router.post('/recover', userController.recoverUser)
+
+  // Recover User Confirmation
+  router.post('/recover/confirmation', userController.recoverUserConfirmation)
+
   app.use('/api/users', router)
 }
