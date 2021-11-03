@@ -72,7 +72,7 @@ exports.authenticate = (req, res) => {
         } else {
           // JWT
           const name = user.name
-          const token = jwt.sign({ name, email }, secret, { expiresIn: '12h' })
+          const token = jwt.sign({ name, email, userId: user.id }, secret, { expiresIn: '12h' })
           res.status(200).json({ token })
         }
       } else {

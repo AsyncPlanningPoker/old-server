@@ -8,6 +8,7 @@ function (req, res, next) {
   // Authorization: Bearer <Token>
   if (authorization) {
     jwt.verify(authorization, secret, (err, decoded) => {
+      req.decoded = decoded
       if (err) {
         res.status(401).json({ error: true, errorMessage: 'Invalid Token' })
       } else next()
