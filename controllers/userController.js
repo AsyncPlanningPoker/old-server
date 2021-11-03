@@ -3,6 +3,7 @@ const mailService = require('../services/MailService')
 const jwt = require('jsonwebtoken') // JSON Web Token Module
 const secret = 'planning-poker-secret'
 const Users = db.users
+const UsersRecovery = db.userRecovery
 const bcrypt = require('bcrypt')
 const randomstring = require("randomstring")
 
@@ -106,5 +107,71 @@ exports.verifyEmail = (req, res) => {
     .catch(err => {
       console.log(err)
       res.status(500).json({ error: true, message: `Error para encontrar o usuário` })
+    })
+}
+
+exports.recoverUser = (req, res) => {
+  const email = req.body.email
+
+  Users.findOne({ where: { email: email } })
+    .then(data => {
+      if (data) {
+        const userRecoveryData = {
+          token: randomstring.generate(64),
+          status: 'Pending',
+          userId: data.dataValues.id 
+        }
+
+        UsersRecovery.create(userRecoveryData)
+          .then(recoveryData => {
+            const token = recoveryData.dataValues.token
+            mailService.sendMail(data.dataValues.email, "Recuperação de usuário", `Token:${token}\n passar esse token na requisição de confirmação no body junto com a nova senha...`);
+            res.status(201).json({ success: true })
+          })
+          .catch(err => {
+            console.log(err)
+            res.status(500).send({ error: true, message: 'Erro ao criar recuperação de senha' })
+          })
+        
+      } else {
+        res.status(404).json({ error: true, message: `Não foi possível localizar o usuário` })
+      }
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({ error: true, message: `Error para encontrar o usuário` })
+    })
+}
+
+exports.recoverUserConfirmation = (req, res) => {
+  const token = req.body.token
+  const newPassword = req.body.newPassword
+  const salt = bcrypt.genSaltSync()
+  const passwordHash = bcrypt.hashSync(newPassword, salt)
+
+  UsersRecovery.findOne({ where: { token: token }, include: 'user' })
+    .then(data => {
+      if (data) {
+        if(data.dataValues.status === 'Pending'){
+          data.update({ status: 'Complete' }).then(updatedRecovery => {
+            console.log("recovery updated to complete")
+            data.dataValues.user.update({ salt: salt, password: passwordHash }).then(updatedUser => {
+              res.status(200).json({ message: 'Atualizado com sucesso' })
+            }).catch(err => {
+              res.status(500).json({ message: 'Falha ao atualizar usuário' })
+            })
+          }).catch(err => {
+            res.status(500).json({ message: 'Falha ao atualizar recuperação' })
+          })
+        } else {
+          res.status(404).json({ error: true, message: `Token não está mais disponível` })
+        }
+      } else {
+        res.status(404).json({ error: true, message: `Não foi possível localizar o token` })
+      }
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({ error: true, message: `Error para encontrar o token` })
     })
 }
