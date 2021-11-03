@@ -3,7 +3,10 @@ const secret = 'planning-poker-secret'
 
 module.exports =
 function (req, res, next) {
-  const authorization = req.get('Authorization')
+  const rawAuthorization = req.get('Authorization')
+  var authorizationSplitted = rawAuthorization.split(' ')
+  var authorization = authorizationSplitted[authorizationSplitted.length - 1]
+
   // Authorization: token
   // Authorization: Bearer <Token>
   if (authorization) {
