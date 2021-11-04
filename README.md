@@ -14,6 +14,7 @@ API responsável por realizar as ações de CRUD do Planning Poker.
 * [Guia de uso](#guia-de-uso)
 * [Tecnologias](#tecnologias)
   * [Módulos](#módulos)
+  * [Coleção no Postman](#coleção-no-postman)
 
 ## Rodando o servidor
 
@@ -37,6 +38,7 @@ node app.js
 | Usuários  | `/api/users/*` | [Link](https://github.com/LabEs-2021-03/planning-poker-server/blob/develop/docs/users.md) |
 | Poker     | `/api/poker/*` | [Link](https://github.com/LabEs-2021-03/planning-poker-server/blob/develop/docs/poker.md) |
 | Histórias | `/api/story/*` | [Link](https://github.com/LabEs-2021-03/planning-poker-server/blob/develop/docs/story.md) |
+| Votos     | `/api/vote/*`  | [Link](https://github.com/LabEs-2021-03/planning-poker-server/blob/develop/docs/vote.md)  |
 
 ## Tecnologias
 
@@ -52,10 +54,6 @@ A API utiliza de alguns módulos de NodeJS, sendo eles:
 - [**Bcrypt**](https://github.com/kelektiv/node.bcrypt.js#readme) - Uma biblioteca para auxiliar na encriptação da senha.
 - [**Helmet.js**](https://helmetjs.github.io/) - Uma biblioteca que auxilia na segurança de aplicações Express.
 - [**Cors**](https://www.npmjs.com/package/cors) - Usado como middleware para habilitar a utilização de CORS em uma aplicação Express.
-
-
-<https://hub.docker.com/_/mysql>
-<https://hub.docker.com/_/postgres>
 
 ### Postman Collection
 
