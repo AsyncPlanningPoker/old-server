@@ -1,6 +1,6 @@
-# users
+# vote
 
-Rotas de usuário
+Rotas de votos do poker
 
 ## Índice
 - [/api/vote](#apivote)
