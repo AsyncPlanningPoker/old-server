@@ -7,6 +7,18 @@ module.exports = app => {
   // New Poker
   router.post('/', pokerController.create)
 
+  // New Poker
+  router.post('/addUser', pokerController.addUser)
+
+  // Get Pokers created by user (uuid)
+  router.get('/createdByUser', pokerController.createdByUser)
+
+  // Get Pokers created by user (uuid)
+  router.get('/missingVotes', pokerController.findPokerWithMissingVotesByUser)
+
+  // Get Pokers for a given idUser (uuid)
+  router.get('/fromUser', pokerController.fromUser)
+
   // Get Poker (uuid)
   router.get('/:id', pokerController.findOne)
 
