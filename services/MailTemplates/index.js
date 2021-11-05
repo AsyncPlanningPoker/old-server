@@ -1,7 +1,8 @@
+const urlBackResetPassword = `${process.env.URL_FRONT}/recovery-password/reset-password`
 
 const resetPassword = ({token, username}) => {
   return {
-    text: `Abra no seu navegador a url: "http://localhost:4200/poker/reset-password/${token}"`,
+    text: `Abra no seu navegador a url: "${urlBackResetPassword}/${token}"`,
     html: `
         <style>
           body {
@@ -47,13 +48,13 @@ const resetPassword = ({token, username}) => {
               Recebemos sua solicitação de alteração de senha da sua conta. Para
               realizá-la, clique no link abaixo e preencha os campos solicitados.
             </p>
-            <a href="http://localhost:4200/poker/reset-password/${token}">Nova senha</a>
+            <a href="${urlBackResetPassword}/${token}">Nova senha</a>
             <p>
               Se o link não funcionar, copie o endereço abaixo e cole no seu
               navegador
             </p>
             <p>
-              <strong>http://localhost:4200/poker/reset-password/${token}</strong>
+              <strong>${urlBackResetPassword}/${token}</strong>
             </p>
           </div>
         </div>
