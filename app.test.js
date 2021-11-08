@@ -5,6 +5,7 @@ const db = require('./database/models')
 let userId, userJwt
 let pokerId
 let storyId
+let voteId
 
 // Before any tests run, clear the DB and run migrations with Sequelize sync()
 beforeAll(async () => {
@@ -134,15 +135,46 @@ describe('Stories', () => {
 
 })
 
+describe('Votes', () => {
+  it('Story', async () => {
+    // Votes in story
+    const response = await request(app)
+    .post('/api/vote/')
+    .set({Authorization: userJwt})
+    .send({ vote: '1', idPoker: pokerId, idStory: storyId, idUser: userId })
+    
+    voteId = response.body.data.id
+    
+    expect(response.status).toBe(201)
+  })
+
+  it('Get vote', async () => {
+    // Find vote
+    const route = `/api/vote/${voteId}`
+    const response = await request(app)
+      .get(route)
+      .set({Authorization: userJwt})
+    
+    expect(response.status).toBe(200)
+  })
+})
+
 describe('Delete', () => {
+  it('Vote', async () => {
+    const response = await request(app)
+      .delete('/api/vote')
+      .set({Authorization: userJwt})
+      .send({ idUser: userId, idPoker: pokerId })
+    
+    expect(response.status).toBe(200)
+  })
+  
   it('Story', async () => {
     // Delete storie
     const route = `/api/story/${storyId}`
     const response = await request(app)
       .delete(route)
       .set({Authorization: userJwt})
-    
-    console.log(response.body)
 
     expect(response.status).toBe(200)
   })
