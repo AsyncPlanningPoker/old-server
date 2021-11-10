@@ -1,3 +1,6 @@
+const User = require('./UserModel')
+const Poker = require('./PokerModel')
+
 module.exports = (sequelize, Sequelize) => {
   const PokerUser = sequelize.define('pokerUser', {
     id: {
@@ -6,12 +9,10 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       primaryKey: true
     },
-    idPoker: {
-      type: Sequelize.STRING
-    },
-    idUser: {
-      type: Sequelize.STRING
-    }
   })
+
+  PokerUser.associate = (models) =>{
+  }
+  
   return PokerUser
 }

@@ -9,12 +9,26 @@ module.exports = (sequelize, Sequelize) => {
     name: {
       type: Sequelize.STRING
     },
-    createdBy: {
-      type: Sequelize.STRING
-    },
     status: {
       type: Sequelize.ENUM('Open', 'Closed')
     }
   })
+
+  Poker.associate = (models) => {
+    models['pokers'].belongsTo(models['users'], {
+      constraint: true,
+      foreignKey: 'createdBy',
+      targetKey: 'id'
+    })
+
+    models['pokers'].belongsToMany(models['users'],{
+      foreignKey: 'idPoker',
+      constraints: true,
+      through: {
+          model: models['pokerUser']
+      },
+      as: 'allUsers'
+    })
+  }
   return Poker
 }
