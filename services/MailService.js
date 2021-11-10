@@ -1,4 +1,5 @@
 var nodemailer = require('nodemailer');
+const { resetPassword } = require('./MailTemplates');
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -8,17 +9,25 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const mailOptions = (to, subject, message) => {
+const mailOptions = (to, subject, template, params) => {
+    let message = {}
+
+    switch (template) {
+        case "reset-password":
+            message = resetPassword(params) 
+        break;
+    }   
+    
     return {
+        ...message,
         from: 'assyncplanningpoker@gmail.com',
         to: to,
         subject: subject,
-        text: message
     };
 }
 
-exports.sendMail = (to, subject, message) => {
-    var options = mailOptions(to, subject, message);
+exports.sendMail = (to, subject, template, params ) => {
+    var options = mailOptions(to, subject, template, params);
     transporter.sendMail(options, function (error, info) {
         if (error) {
             console.log(error);

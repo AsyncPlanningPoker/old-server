@@ -1,15 +1,19 @@
-const db = require('../database/models')
-const mailService = require('../services/MailService')
-const jwt = require('jsonwebtoken') // JSON Web Token Module
-const secret = 'planning-poker-secret'
+const jwt = require("jsonwebtoken") // JSON Web Token Module
+const bcrypt = require("bcrypt")
+const randomstring = require("randomstring")
+
+const db = require("../database/models")
+const mailService = require("../services/MailService")
+
+const secret = "planning-poker-secret"
 const Users = db.users
 const UsersRecovery = db.userRecovery
-const bcrypt = require('bcrypt')
-const randomstring = require("randomstring")
 
 exports.create = (req, res) => {
   if (!req.body.username && !req.body.password && !req.body.email) {
-    res.status(405).send({ error: true, message: 'Erro no corpo da requisição.' })
+    res
+      .status(405)
+      .send({ error: true, message: "Erro no corpo da requisição." })
   }
 
   const salt = bcrypt.genSaltSync()
@@ -26,12 +30,18 @@ exports.create = (req, res) => {
   Users.create(userData)
     .then(data => {
       const userId = data.dataValues.id
-      mailService.sendMail(data.dataValues.email, "Verifique seu email", `Clique aqui para verificar seu email: http://localhost:3000/api/users/verifyEmail/${data.dataValues.verifyEmailCode}`);
+      mailService.sendMail(
+        data.dataValues.email,
+        "Verifique seu email",
+        `Clique aqui para verificar seu email: http://localhost:3000/api/users/verifyEmail/${data.dataValues.verifyEmailCode}`
+      );
       res.status(201).json({ success: true, id: userId })
     })
     .catch(err => {
       console.log(err)
-      res.status(500).send({ error: true, message: 'Erro ao criar o usuário.' })
+      res
+        .status(500)
+        .send({ error: true, message: "Erro ao criar o usuário." })
     })
 }
 
@@ -44,12 +54,22 @@ exports.findOne = (req, res) => {
         const { id, name, email } = data
         res.status(200).json({ id, name, email })
       } else {
-        res.status(404).json({ error: true, message: `Não foi possível localizar o usuário com o id=${id}.` })
+        res
+          .status(404)
+          .json({
+            error: true,
+            message: `Não foi possível localizar o usuário com o id=${id}.`
+          })
       }
     })
     .catch(err => {
       console.log(err)
-      res.status(500).json({ error: true, message: `Error para retornar o usuário com o id=${id}` })
+      res
+        .status(500)
+        .json({
+          error: true,
+          message: `Error para retornar o usuário com o id=${id}`
+        })
     })
 }
 
@@ -65,23 +85,37 @@ exports.authenticate = (req, res) => {
         // Check Password
         const hashPassword = bcrypt.hashSync(password, user.salt)
         if (user.password !== hashPassword) {
-          res.status(404).json({ error: true, message: 'Senha inválida' })
-        } else if (needsVerifiedEmail && !user.verifiedEmail){
+          res.status(404).json({ error: true, message: "Senha inválida" })
+        } else if (needsVerifiedEmail && !user.verifiedEmail) {
           // Check for verified email
-          res.status(404).json({ error: true, message: 'Usuário com email não verificado' })
+          res
+            .status(404)
+            .json({ error: true, message: "Usuário com email não verificado" })
         } else {
           // JWT
           const name = user.name
-          const token = jwt.sign({ name, email, userId: user.id }, secret, { expiresIn: '12h' })
+          const token = jwt.sign({ name, email, userId: user.id }, secret, {
+            expiresIn: "12h"
+          })
           res.status(200).json({ token })
         }
       } else {
-        res.status(404).json({ error: true, message: `Não foi possível autenticar o usuário=${email}.` })
+        res
+          .status(404)
+          .json({
+            error: true,
+            message: `Não foi possível autenticar o usuário=${email}.`
+          })
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err)
-      res.status(500).json({ error: true, message: `Erro ao localizar o usuário ${email} no banco de dados.` })
+      res
+        .status(500)
+        .json({
+          error: true,
+          message: `Erro ao localizar o usuário ${email} no banco de dados.`
+        })
     })
 }
 
@@ -89,26 +123,37 @@ exports.verifyEmail = (req, res) => {
   const code = req.params.code
 
   Users.findOne({ where: { verifyEmailCode: code } })
-    .then(data => {
+    .then((data) => {
       if (data) {
         if (data.dataValues.verifiedEmail) {
           res.status(400).json({ error: true, message: `Email já verificado` })
         } else {
-          data.update({ verifiedEmail: true }).then(data => {
-            res.status(200).json({ message: 'Email confirmado com sucesso' })
-          }).catch(err => {
-            res.status(500).json({ message: 'Falha ao atualizar usuário' })
-          })
+          data
+            .update({ verifiedEmail: true })
+            .then(data => {
+              res.status(200).json({ message: "Email confirmado com sucesso" })
+            })
+            .catch(err => {
+              res.status(500).json({ message: "Falha ao atualizar usuário" })
+            })
         }
       } else {
-        res.status(404).json({ error: true, message: `Não foi possível localizar o usuário` })
+        res
+          .status(404)
+          .json({
+            error: true,
+            message: `Não foi possível localizar o usuário`
+          })
       }
     })
-    .catch(err => {
-      console.log(err)
-      res.status(500).json({ error: true, message: `Error para encontrar o usuário` })
+    .catch((err) => {
+      console.log(err);
+      res
+        .status(500)
+        .json({ error: true, message: `Error para encontrar o usuário` })
     })
 }
+
 
 exports.recoverUser = (req, res) => {
   const email = req.body.email
@@ -118,30 +163,46 @@ exports.recoverUser = (req, res) => {
       if (data) {
         const userRecoveryData = {
           token: randomstring.generate(64),
-          status: 'Pending',
-          userId: data.dataValues.id 
-        }
+          status: "Pending",
+          userId: data.dataValues.id
+        };
 
         UsersRecovery.create(userRecoveryData)
-          .then(recoveryData => {
+          .then((recoveryData) => {
             const token = recoveryData.dataValues.token
-            mailService.sendMail(data.dataValues.email, "Recuperação de usuário", `Token:${token}\n passar esse token na requisição de confirmação no body junto com a nova senha...`);
+            mailService.sendMail(
+              data.dataValues.email,
+              "Recuperação de usuário",
+              "reset-password",
+              {token, username: data.name}
+            );
             res.status(201).json({ success: true })
           })
-          .catch(err => {
-            console.log(err)
-            res.status(500).send({ error: true, message: 'Erro ao criar recuperação de senha' })
+          .catch((err) => {
+            console.log(err);
+            res
+              .status(500)
+              .send({
+                error: true,
+                message: "Erro ao criar recuperação de senha"
+              })
           })
-        
       } else {
-        res.status(404).json({ error: true, message: `Não foi possível localizar o usuário` })
+        res
+          .status(404)
+          .json({
+            error: true,
+            message: `Não foi possível localizar o usuário`
+          })
       }
     })
-    .catch(err => {
-      console.log(err)
-      res.status(500).json({ error: true, message: `Error para encontrar o usuário` })
+    .catch((err) => {
+      console.log(err);
+      res
+        .status(500)
+        .json({ error: true, message: `Error para encontrar o usuário` })
     })
-}
+};
 
 exports.recoverUserConfirmation = (req, res) => {
   const token = req.body.token
@@ -149,29 +210,45 @@ exports.recoverUserConfirmation = (req, res) => {
   const salt = bcrypt.genSaltSync()
   const passwordHash = bcrypt.hashSync(newPassword, salt)
 
-  UsersRecovery.findOne({ where: { token: token }, include: 'user' })
+  UsersRecovery.findOne({ where: { token: token }, include: "user" })
     .then(data => {
       if (data) {
-        if(data.dataValues.status === 'Pending'){
-          data.update({ status: 'Complete' }).then(updatedRecovery => {
-            console.log("recovery updated to complete")
-            data.dataValues.user.update({ salt: salt, password: passwordHash }).then(updatedUser => {
-              res.status(200).json({ message: 'Atualizado com sucesso' })
-            }).catch(err => {
-              res.status(500).json({ message: 'Falha ao atualizar usuário' })
+        if (data.dataValues.status === "Pending") {
+          data
+            .update({ status: "Complete" })
+            .then(updatedRecovery => {
+              console.log("recovery updated to complete");
+              data.dataValues.user
+                .update({ salt: salt, password: passwordHash })
+                .then(updatedUser => {
+                  res.status(200).json({ message: "Atualizado com sucesso" })
+                })
+                .catch(err => {
+                  res
+                    .status(500)
+                    .json({ message: "Falha ao atualizar usuário" })
+                })
             })
-          }).catch(err => {
-            res.status(500).json({ message: 'Falha ao atualizar recuperação' })
-          })
+            .catch(err => {
+              res
+                .status(500)
+                .json({ message: "Falha ao atualizar recuperação" })
+            })
         } else {
-          res.status(404).json({ error: true, message: `Token não está mais disponível` })
+          res
+            .status(404)
+            .json({ error: true, message: `Token não está mais disponível` })
         }
       } else {
-        res.status(404).json({ error: true, message: `Não foi possível localizar o token` })
+        res
+          .status(404)
+          .json({ error: true, message: `Não foi possível localizar o token` })
       }
     })
     .catch(err => {
       console.log(err)
-      res.status(500).json({ error: true, message: `Error para encontrar o token` })
+      res
+        .status(500)
+        .json({ error: true, message: `Error para encontrar o token` })
     })
 }
