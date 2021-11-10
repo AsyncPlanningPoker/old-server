@@ -33,7 +33,8 @@ exports.create = (req, res) => {
       mailService.sendMail(
         data.dataValues.email,
         "Verifique seu email",
-        `Clique aqui para verificar seu email: http://localhost:3000/api/users/verifyEmail/${data.dataValues.verifyEmailCode}`
+        "generic",
+        {message : `Clique aqui para verificar seu email: http://localhost:3000/api/users/verifyEmail/${data.dataValues.verifyEmailCode}`}
       );
       res.status(201).json({ success: true, id: userId })
     })

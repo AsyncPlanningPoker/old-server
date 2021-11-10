@@ -1,5 +1,5 @@
 var nodemailer = require('nodemailer');
-const { resetPassword } = require('./MailTemplates');
+const { resetPassword, genericMail } = require('./MailTemplates');
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -16,6 +16,8 @@ const mailOptions = (to, subject, template, params) => {
         case "reset-password":
             message = resetPassword(params) 
         break;
+        case "generic":
+            message = genericMail(params);
     }   
     
     return {
