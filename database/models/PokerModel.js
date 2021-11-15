@@ -29,6 +29,11 @@ module.exports = (sequelize, Sequelize) => {
       },
       as: 'allUsers'
     })
+
+    models['pokers'].hasMany(models['stories'],{
+      foreignKey: 'idPoker',
+      as: 'allStories' 
+    })
   }
   return Poker
 }

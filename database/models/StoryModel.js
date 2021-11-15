@@ -12,9 +12,14 @@ module.exports = (sequelize, Sequelize) => {
     description: {
       type: Sequelize.TEXT
     },
-    idPoker: {
-      type: Sequelize.STRING
-    }
   })
+
+  Story.associate = (models) => {
+    models['stories'].belongsTo(models['pokers'], {
+      constraint: true,
+      foreignKey: 'idPoker',
+      targetKey: 'id'
+    })
+  }
   return Story
 }

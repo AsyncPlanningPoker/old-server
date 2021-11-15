@@ -4,7 +4,6 @@ const router = require('express').Router()
 
 module.exports = app => {
   router.use(verifyJwt)
-
   // New Story
   router.post('/', storyController.create)
 

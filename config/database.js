@@ -1,9 +1,25 @@
+const paths = {
+  development: '.env',
+  test: '.env',
+}
+const env = process.env.NODE_ENV || 'development'
+
+require('dotenv').config({ path: paths[env] })
+
+const host = process.env.DB_HOST || "localhost";
+const port = process.env.DB_PORT || 5432;
+const password = process.env.DB_PASSWORD || "password";
+const username = process.env.DB_USERNAME || "postgres";
+const database = process.env.DB_NAME || "planning-poker-dev";
+const isHerokuDb = !!process.env.IS_HEROKU_DB 
+
 module.exports = {
   development: {
-    username: "vlrcnroabxpqmi",
-    password: "b236c187e9a1d9795b9065140353ef8bdcdcbfab6a7056013a9c2dfd697d5d58",
-    database: "db6tk8h0iffb26",
-    host: "ec2-52-87-123-108.compute-1.amazonaws.com",
+    username,
+    password,
+    database,
+    host,
+    port,
     dialect: "postgres",
     logging: false,
     pool: {
@@ -12,7 +28,7 @@ module.exports = {
       acquire: 30000,
       idle: 10000,
     },
-    dialectOptions: {
+    dialectOptions: isHerokuDb && {
       ssl: {
          require: true,
          rejectUnauthorized: false,
