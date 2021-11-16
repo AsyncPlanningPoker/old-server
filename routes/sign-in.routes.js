@@ -10,7 +10,7 @@ module.exports = app => {
   router.post('/auth', userController.authenticate)
 
   // Verify Email  (code)
-   router.get('/verifyEmail/:code', userController.verifyEmail)
+  router.get('/verifyEmail/:code', userController.verifyEmail)
 
   // Recover User
   router.post('/recover', userController.recoverUser)
@@ -19,6 +19,9 @@ module.exports = app => {
   router.post('/recover/confirmation', userController.recoverUserConfirmation)
 
   router.use(verifyJwt)
+  // Get Email by auto complete
+  router.get('/autoCompleteEmail', userController.autoCompleteEmail)
+
   // Get User (id)
   router.get('/:id', userController.findOne)
 
