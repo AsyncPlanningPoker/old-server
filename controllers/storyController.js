@@ -61,4 +61,19 @@ exports.deleteStory = async (req, res) => {
     Quando um poker é deletado o campo idPoker das Stories que pertence a esse poker
     é setado para null, não sendo deletados e permanecendo no banco.
   */
+
+  /* Erro talvez certado, exige teste */ 
+}
+
+exports.findAllRounds = async (req, res) => {
+  const idStory = req.params.idStory
+
+  const storie = await Stories.findByPk(idStory)
+
+  if (storie) {
+    const rounds = await storie.getAllRounds()
+    res.status(200).send(rounds)
+  } else{
+    res.status(404).send({error: true, message: "Story não encontrada."})
+  }
 }

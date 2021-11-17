@@ -34,9 +34,7 @@ exports.addUser = async (req, res) => {
   }
 
   const user = await Users.findOne({ where: { email: req.body.email } })
-  console.log(user)
   const poker = await Poker.findByPk(req.body.idPoker)
-  console.log(poker)
   if (user && poker) {
     const pokerUserData = {
       idUser: user.id,
@@ -150,7 +148,7 @@ exports.findOne = (req, res) => {
 exports.findStoriesByPokerId = async (req, res) => {
   const pokerId = req.params.pokerId
 
-  const poker = await Users.findByPk(pokerId)
+  const poker = await Poker.findByPk(pokerId)
 
   if (poker) {
     const stories = await poker.getAllStories()

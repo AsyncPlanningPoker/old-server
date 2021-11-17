@@ -12,6 +12,14 @@ module.exports = (sequelize, Sequelize) => {
   })
 
   PokerUser.associate = (models) =>{
+    models['pokerUser'].belongsToMany(models['rounds'],{
+      foreignKey: 'idPokerUser',
+      constraints: true,
+      through: {
+          model: models['votes']
+      },
+      as: 'allRounds'
+    })
   }
   
   return PokerUser

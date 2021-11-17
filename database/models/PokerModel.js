@@ -32,6 +32,7 @@ module.exports = (sequelize, Sequelize) => {
 
     models['pokers'].hasMany(models['stories'],{
       foreignKey: 'idPoker',
+      onDelete: 'CASCADE',
       as: 'allStories' 
     })
   }

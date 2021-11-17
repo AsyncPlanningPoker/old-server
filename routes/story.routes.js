@@ -7,6 +7,8 @@ module.exports = app => {
   // New Story
   router.post('/', storyController.create)
 
+  router.get('/:idStory/rounds', storyController.findAllRounds)
+
   // Get Story (uuid)
   router.get('/:id', storyController.findOne)
 
