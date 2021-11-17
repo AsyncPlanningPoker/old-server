@@ -4,9 +4,10 @@ const router = require('express').Router()
 
 module.exports = app => {
   router.use(verifyJwt)
-
   // New Story
   router.post('/', storyController.create)
+
+  router.get('/:idStory/rounds', storyController.findAllRounds)
 
   // Get Story (uuid)
   router.get('/:id', storyController.findOne)

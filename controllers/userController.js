@@ -253,3 +253,33 @@ exports.recoverUserConfirmation = (req, res) => {
         .json({ error: true, message: `Error para encontrar o token` })
     })
 }
+
+
+exports.autoCompleteEmail = async (req, res) => {
+  const partial = req.body.partial
+
+  if (!partial) {
+    res.status(405).send({ error: true, message: 'Erro no corpo da requisição.' })
+  }
+
+  const emailsResult = await Users.findAll({
+    limit: 3,
+    where: {
+      email: {
+        [Op.regexp]: `${partial}[\S]*`
+      }
+    },
+    attributes: ['email']
+  }) 
+
+  if (emailsResult) {
+    const emails = emailsResult.map((emailObject) => {
+      return emailObject.email
+    })
+    res.status(200).send(emails)
+  } else {
+    res.status(500).send({ error: true, message: `Error ao buscar usuário` })
+  }
+
+
+}

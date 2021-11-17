@@ -35,5 +35,22 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING
     }
   })
+
+  User.associate = (models) => {
+    models['users'].hasMany(models['pokers'],{
+      foreignKey: 'createdBy',
+      as: 'createdPokers' 
+    })
+
+    models['users'].belongsToMany(models['pokers'],{
+      foreignKey: 'idUser',
+      constraints: true,
+      through: {
+          model: models['pokerUser']
+      },
+      as: 'allPokers'
+    })
+  }
+  
   return User
 }
