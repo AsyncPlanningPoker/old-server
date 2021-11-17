@@ -1,12 +1,13 @@
-const db = require('../database/models')
-const mailService = require('../services/MailService')
-const jwt = require('jsonwebtoken') // JSON Web Token Module
-const secret = 'planning-poker-secret'
+const jwt = require("jsonwebtoken") // JSON Web Token Module
+const bcrypt = require("bcrypt")
+const randomstring = require("randomstring")
+
+const db = require("../database/models")
+const mailService = require("../services/MailService")
+
+const secret = "planning-poker-secret"
 const Users = db.users
 const UsersRecovery = db.userRecovery
-const bcrypt = require('bcrypt')
-const randomstring = require("randomstring")
-const { Op } = require("sequelize");
 
 exports.create = (req, res) => {
   if (!req.body.username && !req.body.password && !req.body.email) {
@@ -30,7 +31,6 @@ exports.create = (req, res) => {
       mailService.sendMail(
         data.dataValues.email,
         "Verifique seu email",
-        `Clique aqui para verificar seu email: http://localhost:3000/api/users/verifyEmail/${data.dataValues.verifyEmailCode}`
         "generic",
         {message : `Clique aqui para verificar seu email: http://localhost:3000/api/users/verifyEmail/${data.dataValues.verifyEmailCode}`}
       );
@@ -38,7 +38,9 @@ exports.create = (req, res) => {
     })
     .catch(err => {
       console.log(err)
-      res.status(500).send({ error: true, message: 'Erro ao criar o usuário.' })
+      res
+        .status(500)
+        .send({ error: true, message: "Erro ao criar o usuário." })
     })
 }
 
