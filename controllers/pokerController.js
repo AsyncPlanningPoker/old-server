@@ -34,12 +34,18 @@ exports.addUser = async (req, res) => {
   }
 
   const user = await Users.findOne({ where: { email: req.body.email } })
+
   const poker = await Poker.findByPk(req.body.idPoker)
   if (user && poker) {
     const pokerUserData = {
       idUser: user.id,
       idPoker: poker.id
     }
+
+    const userHasAssoc = await PokerUser.findOne({ where: pokerUserData })
+
+    if(userHasAssoc) res.status(405).json({  error: true, message: 'Usuário já faz parte do poker.' })
+
     const addPokerUser = await PokerUser.create(pokerUserData)
     if (addPokerUser) {
       res.status(201).json({ success: true, id: addPokerUser.id })
