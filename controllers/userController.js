@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken") // JSON Web Token Module
+const Sequelize = require('sequelize');
 const bcrypt = require("bcrypt")
 const randomstring = require("randomstring")
 
@@ -8,6 +9,8 @@ const mailService = require("../services/MailService")
 const secret = "planning-poker-secret"
 const Users = db.users
 const UsersRecovery = db.userRecovery
+
+const { Op } = Sequelize
 
 exports.create = (req, res) => {
   if (!req.body.username && !req.body.password && !req.body.email) {
@@ -256,9 +259,9 @@ exports.recoverUserConfirmation = (req, res) => {
 
 
 exports.autoCompleteEmail = async (req, res) => {
-  const partial = req.body.partial
+  const partial = req.query.partial
 
-  if (!partial) {
+  if (!partial && typeof partial !== 'string') {
     res.status(405).send({ error: true, message: 'Erro no corpo da requisição.' })
   }
 
