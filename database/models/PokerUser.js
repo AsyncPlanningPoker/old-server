@@ -2,7 +2,7 @@ const User = require('./UserModel')
 const Poker = require('./PokerModel')
 
 module.exports = (sequelize, Sequelize) => {
-  const PokerUser = sequelize.define('pokerUser', {
+  const PokerUser = sequelize.define('pokerUsers', {
     id: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
@@ -12,7 +12,7 @@ module.exports = (sequelize, Sequelize) => {
   })
 
   PokerUser.associate = (models) =>{
-    models['pokerUser'].belongsToMany(models['rounds'],{
+    models['pokerUsers'].belongsToMany(models['rounds'],{
       foreignKey: 'idPokerUser',
       constraints: true,
       through: {

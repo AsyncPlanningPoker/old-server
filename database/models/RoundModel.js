@@ -19,7 +19,7 @@ module.exports = (sequelize, Sequelize) => {
           const models = sequelize.models
           const story = await models.stories.findByPk(round.idStory)
           const poker = await models.pokers.findByPk(story.idPoker)
-          const usersInPoker = await models.pokerUser.findAll({where : {idPoker: poker.id}})
+          const usersInPoker = await models.pokerUsers.findAll({where : { idPoker: poker.id }})
 
           if (story && poker && usersInPoker){
             
@@ -43,7 +43,7 @@ module.exports = (sequelize, Sequelize) => {
       targetKey: 'id'
     })
 
-    models['rounds'].belongsToMany(models['pokerUser'],{
+    models['rounds'].belongsToMany(models['pokerUsers'],{
       foreignKey: 'idRound',
       constraints: true,
       through: {

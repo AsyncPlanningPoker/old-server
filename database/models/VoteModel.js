@@ -16,5 +16,19 @@ module.exports = (sequelize, Sequelize) => {
       }
     })
 
+    Vote.associate = (models) =>{
+      models['votes'].belongsTo(models['pokerUsers'],{
+        constraint: true,
+        foreignKey: 'idPokerUser',
+        targetKey: 'id'
+      })
+      models['votes'].belongsTo(models['rounds'],{
+        constraint: true,
+        foreignKey: 'idRound',
+        targetKey: 'id'
+      })
+    }
+    
+
   return Vote
 }

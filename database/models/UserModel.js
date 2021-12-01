@@ -46,7 +46,7 @@ module.exports = (sequelize, Sequelize) => {
       foreignKey: 'idUser',
       constraints: true,
       through: {
-          model: models['pokerUser']
+          model: models['pokerUsers']
       },
       as: 'allPokers'
     })

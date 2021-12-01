@@ -1,8 +1,10 @@
 const db = require('../database/models')
 const Story = db.stories
+const Round = db.rounds
 const Poker = db.pokers
 const User = db.users
 const Vote = db.votes
+const PokerUser = db.pokerUsers
 
 exports.create = (req, res) => {
   create(req, res)
@@ -95,28 +97,32 @@ exports.deleteStory = (req, res) => {
 }
 
 async function create (req, res) {
-  if (!req.body.idStory || !req.body.idUser || !req.body.idPoker || !req.body.vote) {
+  if (!req.body.idRound || !req.body.idUser || !req.body.idPoker || !req.body.vote) {
     res.status(405).send({ error: true, message: 'Erro no corpo da requisição.' })
   }
 
-  if (!await voteCanBeCasted(req.body.idPoker, req.body.idUser, req.body.idStory)) {
+  if (!await voteCanBeCasted(req.body.idPoker, req.body.idUser, req.body.idRound)) {
     res.status(404).send({ error: true, message: 'Parametros informados nao permitem o voto' })
     return
   }
 
+  const { id: idPokerUser } = await PokerUser.findOne({ where: { idPoker: req.body.idPoker, idUser: req.body.idUser }})
+
   const voteData = {
-    idStory: req.body.idStory,
-    idUser: req.body.idUser,
-    idPoker: req.body.idPoker,
-    vote: req.body.vote
+    idRound: req.body.idRound,
+    idPokerUser,
+    vote: req.body.vote,
+    comment: req.body.comment
   }
 
-  if (await alreadyVoted(req.body.idPoker, req.body.idUser, req.body.idStory)) {
-    Vote.update({ vote: req.body.vote }, {
+  if (await alreadyVoted(req.body.idPoker, req.body.idUser, req.body.idRound)) {
+    Vote.update({
+        vote: req.body.vote, 
+        comment: req.body.comment
+      }, {
       where: {
-        idPoker: req.body.vote,
-        idUser: req.body.idUser,
-        idStory: req.body.idStory
+        idPokerUser,
+        idRound: req.body.idRound,
       }
     })
       .then(data => {
@@ -138,40 +144,41 @@ async function create (req, res) {
   }
 }
 
-async function voteCanBeCasted (pokerId, userId, storyId) {
-  if (!pokerIdExists(pokerId) || !userIdExists(userId) || !storyIdExists(storyId)) {
+async function voteCanBeCasted (pokerId, userId, idRound) {
+  if (!pokerUserExists({ pokerId, userId }) || !roundIdExists(idRound)) {
     return false
   }
   return true
 }
 
-async function pokerIdExists (pokerId) {
-  if (await Poker.findByPk(pokerId) !== null) {
+async function pokerUserExists ({ userId, pokerId }) {
+  if (await PokerUser.findOne({ where: { idPoker: pokerId, idUser: userId }}) !== null) {
     return true
   }
   return false
 }
 
-async function userIdExists (userId) {
-  if (await User.findByPk(userId) !== null) {
+async function roundIdExists (storyId) {
+  if (await Round.findByPk(storyId) !== null) {
     return true
   }
   return false
 }
 
-async function storyIdExists (storyId) {
-  if (await Story.findByPk(storyId) !== null) {
-    return true
-  }
-  return false
-}
+async function alreadyVoted (idPoker, idUser, idRound) {
+  const pokerUser = await PokerUser.findOne({
+    where: { 
+      idPoker: idPoker,
+      idUser: idUser
+    }
+  })
 
-async function alreadyVoted (idPoker, idUser, idStory) {
+  if(!pokerUser) return false
+  
   const result = await Vote.findAll({
     where: {
-      idPoker: idPoker,
-      idStory: idStory,
-      idUser: idUser
+      idPokerUser: pokerUser.id,
+      idRound: idRound
     }
   })
 
