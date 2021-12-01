@@ -1,7 +1,7 @@
 const db = require('../database/models')
 const Poker = db.pokers
 const Users = db.users
-const PokerUser = db.pokerUser
+const PokerUser = db.pokerUsers
 
 exports.create = async (req, res) => {
   const idUser = req.decoded.userId
