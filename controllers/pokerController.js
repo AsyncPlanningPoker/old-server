@@ -29,6 +29,7 @@ exports.create = async (req, res) => {
 }
 
 exports.addUser = async (req, res) => {
+  const idUser = req.decoded.userId
   if (!req.body.idPoker && !req.body.email) {
     res.status(405).send({ error: true, message: 'Erro no corpo da requisição.' })
   }
@@ -37,20 +38,28 @@ exports.addUser = async (req, res) => {
 
   const poker = await Poker.findByPk(req.body.idPoker)
   if (user && poker) {
-    const pokerUserData = {
-      idUser: user.id,
-      idPoker: poker.id
-    }
+    if(poker.createdBy == idUser){
 
-    const userHasAssoc = await PokerUser.findOne({ where: pokerUserData })
+      const pokerUserData = {
+        idUser: user.id,
+        idPoker: poker.id
+      }
+  
+      const userHasAssoc = await PokerUser.findOne({ where: pokerUserData })
+  
+      if(userHasAssoc) {
+        res.status(405).json({  error: true, message: 'Usuário já faz parte do poker.' })
+      } else {
+        const addPokerUser = await PokerUser.create(pokerUserData)
+        if (addPokerUser) {
+          res.status(201).json({ success: true, id: addPokerUser.id })
+        } else {
+          res.status(405).send({ error: true, message: 'Erro ao associar usuario ao poker.' })
+        }
+      }
 
-    if(userHasAssoc) res.status(405).json({  error: true, message: 'Usuário já faz parte do poker.' })
-
-    const addPokerUser = await PokerUser.create(pokerUserData)
-    if (addPokerUser) {
-      res.status(201).json({ success: true, id: addPokerUser.id })
     } else {
-      res.status(405).send({ error: true, message: 'Erro ao associar usuario ao poker.' })
+      res.status(406).json({  error: true, message: 'Ação não permitida.' })
     }
   } else {
     res.status(400).send({ error: true, message: 'Informações inválidas.' })
@@ -68,7 +77,7 @@ exports.createdByUser = async (req, res) => {
 
   if (user) {
     const poker = await user.getCreatedPokers()
-    const data = poker.map((key, index) => {
+    const data = poker.map(( key ) => {
       return key.dataValues
     })
     res.status(200).send(data)
@@ -90,29 +99,47 @@ exports.fromUser = async (req, res) => {
   if (user) {
     const allPokers = await user.getAllPokers()
     const data = await Promise.all(
-      allPokers.map( async (poker, index) => {
+      allPokers.map( async ( poker ) => {
         const userCreateBy = await Users.findByPk(poker.dataValues.createdBy)
-        const usersOfPoker = await poker.getAllUsers();
-
-        const usersEmail = usersOfPoker.map((userPoker, index) =>{
-          return userPoker.email
-        })
 
         return {
           idPoker: poker.dataValues.id,
           name: poker.dataValues.name,
           createdBy: userCreateBy.name,
           createdByEmail: userCreateBy.email,
-          status: poker.dataValues.status,
-          players: usersEmail
+          status: poker.dataValues.status
         }
 
       })
     )
     res.status(200).send(data)
   } else {
-    res.status(500).send({ error: true, message: `Error para retornar pokers para o usuario=${idUser}` })
+    res.status(500).send({ error: true, message: "Error para retornar pokers para o usuario" })
   }
+}
+
+
+exports.pokerPlayersById = async (req, res) => {
+  const idPoker = req.params.pokerId
+  if (!idPoker) {
+    res.status(405).send({ error: true, message: "Erro no corpo da requisição." })
+  }
+
+  const poker = await Poker.findByPk( idPoker )
+
+  if( poker ){
+    const playersOfPoker = await poker.getAllUsers();
+    const data = playersOfPoker.map(( user ) => {
+      return {
+        name: user.name,
+        email: user.email
+      } 
+    })
+    res.status(200).send( data )       
+  } else {
+    res.status(404).send({ error: true, message: "Poker não existe" })
+  }
+  
 }
 
 exports.deletePoker = async (req, res) => {
@@ -133,13 +160,12 @@ exports.deletePoker = async (req, res) => {
   }
 }
 
-
-exports.findOne = (req, res) => {
+exports.findOne = ( req, res ) => {
   const id = req.params.id
 
   Poker.findByPk(id)
-    .then(data => {
-      if (data) {
+    .then( data => {
+      if ( data ) {
         res.status(200).send({ data })
       } else {
         res.status(404).send({ error: true, message: `Não foi possível localizar o poker com o id=${id}.` })

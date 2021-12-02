@@ -19,6 +19,9 @@ module.exports = app => {
   // Get Pokers for a given idUser (uuid)
   router.get('/fromUser', pokerController.fromUser)
 
+  // Get users for a given idPoker (uuid)
+  router.get('/:pokerId/playersByPoker', pokerController.pokerPlayersById)
+
   // Get Poker (uuid)
   router.get('/:id', pokerController.findOne)
 
