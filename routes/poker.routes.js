@@ -23,7 +23,7 @@ module.exports = app => {
   router.put('/:pokerId/closePoker', pokerController.closePoker)
 
   // Get users for a given idPoker (uuid)
-  router.put('/:pokerId/renamePoker', pokerController.renamePoker)
+  //router.put('/:pokerId/renamePoker', pokerController.renamePoker)
 
   // Get Poker (uuid)
   router.get('/:id', pokerController.findOne)

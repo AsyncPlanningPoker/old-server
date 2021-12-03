@@ -129,7 +129,7 @@ exports.deletePoker = async (req, res) => {
   if(poker && poker.createdBy == idUser){
     const deletedPoker = await Poker.destroy({ where: { id: poker.id } })
     if (deletedPoker) {
-      res.sendStatus(200)
+      res.status(200).send({ deletedId: id })
     }else{
       res.status(404).send({ error: true, message: "Não foi possível localizar o poker " })
     }
@@ -177,7 +177,7 @@ exports.closePoker = async (req, res) => {
   if (poker) {
     if(poker.createdBy == idUser){
       const pokerUpdated = await Poker.update({status:'Closed'},{ where: { id: poker.id } })
-      res.status(200).send(pokerUpdated)
+      res.status(200).send({ updateId: pokerId })
     } else {
       res.status(406).json({  error: true, message: 'Operação inválida.' })
     }
@@ -186,7 +186,7 @@ exports.closePoker = async (req, res) => {
   }
 }
 
-exports.renamePoker = async (req, res) => {
+/*exports.renamePoker = async (req, res) => {
   const idUser = req.decoded.userId
   const pokerId = req.params.pokerId
   const newName = req.body.name
@@ -204,7 +204,7 @@ exports.renamePoker = async (req, res) => {
   }
 }
 
-/*exports.createdByUser = async (req, res) => {
+exports.createdByUser = async (req, res) => {
   const idUser = req.decoded.userId
   const user = await Users.findByPk(idUser)
 
