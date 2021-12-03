@@ -266,7 +266,7 @@ exports.autoCompleteEmail = async (req, res) => {
       limit: 3,
       where: {
         email: {
-          [Op.regexp]: `${partial}[\S]*`
+          [Op.regexp]: `^${partial}[\S]*`
         }
       },
       attributes: ['email']
