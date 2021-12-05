@@ -51,6 +51,12 @@ module.exports = (sequelize, Sequelize) => {
       },
       as: 'allPokerUsers'
     })
+
+    models['rounds'].hasOne(models['votes'],{
+      foreignKey: 'idRound',
+      onDelete: 'CASCADE',
+      as: 'vote' 
+    })
   }
   return Round
 }
