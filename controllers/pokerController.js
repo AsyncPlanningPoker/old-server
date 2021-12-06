@@ -1,7 +1,12 @@
+const sequelize = require('sequelize');
 const db = require('../database/models')
 const Poker = db.pokers
 const Users = db.users
+const Rounds = db.rounds
 const PokerUser = db.pokerUsers
+const Stories = db.stories
+
+const { Op } = sequelize
 
 exports.create = async (req, res) => {
   const idUser = req.decoded.userId
@@ -184,6 +189,37 @@ exports.closePoker = async (req, res) => {
   } else {
     res.status(404).send({ error: true, message: "Error para retornar o poker" })
   }
+}
+
+exports.closeAllRounds = async (req, res) => {
+  const pokerId = req.params.pokerId
+
+  const rounds = await Rounds.findAll({
+    where: { status: "Open" },
+    include: {
+      model: Stories,
+      where: { idPoker: pokerId },
+      attributes: ['idPoker']
+    }
+   })
+
+   if(rounds.length === 0) {
+    return res.status(404).send({ error: true, message: "Nenhum round encontrado" })
+   }
+
+  await Rounds.update(
+    {status: "Closed"},
+    { 
+      where: {
+         id: {
+           [Op.or]: rounds.map(({id})=> id)
+          }
+        }
+    }
+  )
+
+  return res.status(200).send({ error: true, message: "Encessados com sucesso" })
+
 }
 
 /*exports.renamePoker = async (req, res) => {
