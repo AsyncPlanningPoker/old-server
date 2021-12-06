@@ -11,7 +11,7 @@ module.exports = app => {
 
   // Get Story (uuid)
   router.get('/:id', storyController.findOne)
-
+    
   // Delete Story (uuid)
   router.delete('/:id', storyController.deleteStory)
 

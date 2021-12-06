@@ -5,23 +5,24 @@ const Rounds = db.rounds
 const PokerUser = db.pokerUsers
 
 exports.create = async (req, res) => {
-  const idUser = req.decoded.userId
-  if (!req.body.name && !req.body.description && !req.body.idPoker) {
+  if (req.body.name && req.body.description && req.body.idPoker) {
+    const idUser = req.decoded.userId
+    const getPoker = await Poker.findByPk(req.body.idPoker);
+
+    if (getPoker && getPoker.createdBy == idUser && getPoker.status == 'Open') {
+      const newStory = await Stories.create({
+        name: req.body.name,
+        description: req.body.description,
+        idPoker: getPoker.id
+      })
+      res.status(201).send({ success: true, id: newStory.id })
+    } else {
+      res.status(500).send({ error: true, message: "Erro ao criar a story." })
+    }
+  } else {
     res.status(405).send({ error: true, message: 'Erro no corpo da requisição.' })
   }
 
-  const getPoker = await Poker.findByPk(req.body.idPoker);
-
-  if (getPoker && getPoker.createdBy == idUser) {
-    const newStory = await Stories.create({
-      name: req.body.name,
-      description: req.body.description,
-      idPoker: getPoker.id
-    })
-    res.status(201).send({ success: true, id: newStory.id })
-  } else {
-    res.status(500).send({ error: true, message: 'Erro ao criar a story.' })
-  }
 }
 
 exports.findOne = (req, res) => {
@@ -32,12 +33,12 @@ exports.findOne = (req, res) => {
       if (data) {
         res.status(200).send({ data })
       } else {
-        res.status(404).send({ error: true, message: `Não foi possível localizar a story com o id=${id}.` })
+        res.status(404).send({ error: true, message: "Não foi possível localizar a story" })
       }
     })
     .catch(err => {
       console.log(err)
-      res.status(500).send({ error: true, message: `Error para retornar a story com o id=${id}` })
+      res.status(500).send({ error: true, message: "Error para retornar a story" })
     })
 }
 
@@ -53,18 +54,11 @@ exports.deleteStory = async (req, res) => {
     if (deletedStorie) {
       res.sendStatus(200)
     }else{
-      res.status(404).send({ error: true, message: `Não foi possível localizar o a história com o id=${id}.` })
+      res.status(404).send({ error: true, message: "Não foi possível localizar a história" })
     }
   } else {
-    res.status(500).send({ error: true, message: `Error para deletar a story com o id=${id}` })
+    res.status(500).send({ error: true, message: "Error para deletar a story" })
   }
-
-  /* 
-    Quando um poker é deletado o campo idPoker das Stories que pertence a esse poker
-    é setado para null, não sendo deletados e permanecendo no banco.
-  */
-
-  /* Erro talvez certado, exige teste */ 
 }
 
 exports.findAllRounds = async (req, res) => {

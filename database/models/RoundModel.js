@@ -24,7 +24,6 @@ module.exports = (sequelize, Sequelize) => {
           if (story && poker && usersInPoker){
             
             usersInPoker.forEach( async userInPoker => {
-                console.log(userInPoker.idUser)
                 await models.votes.create({
                   idRound: round.id,
                   idPokerUser: userInPoker.id
