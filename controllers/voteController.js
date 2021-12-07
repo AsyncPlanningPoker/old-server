@@ -45,6 +45,9 @@ exports.deleteVote = (req, res) => {
     })
 }
 
+
+
+
 exports.deletePoker = (req, res) => {
   const idPoker = req.params.id
 
