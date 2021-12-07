@@ -15,7 +15,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     {
       hooks: {
-        afterCreate: async (story, options) => {
+        afterCreate: async (story) => {
           await sequelize.models.rounds.create({
             roundNumber: 1,
             status: 'Open',
