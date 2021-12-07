@@ -37,5 +37,8 @@ module.exports = app => {
   // Delete Poker (uuid)
   router.delete('/:id', pokerController.deletePoker)
 
+  //Poker Result (uuid)
+  router.get('/result/:id', pokerController.getPokerResultByPokerId)
+
   app.use('/api/poker', router)
 }

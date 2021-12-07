@@ -5,6 +5,8 @@ const Users = db.users
 const Rounds = db.rounds
 const PokerUser = db.pokerUsers
 const Stories = db.stories
+const Round = db.rounds
+const Vote = db.votes
 
 const { Op } = sequelize
 
@@ -25,7 +27,7 @@ exports.create = async (req, res) => {
     })
 
     res.status(201).json({ success: true, id: newPoker.id })
-  }else{
+  } else {
     res.status(500).send({ error: true, message: 'Erro ao criar o poker.' })
   }
 }
@@ -34,9 +36,9 @@ exports.addUser = async (req, res) => {
   if(req.body.idPoker && req.body.email){
     const user = await Users.findOne({ where: { email: req.body.email } })
     const poker = await Poker.findByPk(req.body.idPoker)
-  
+
     if (user && poker) {
-      
+
       const idUser = req.decoded.userId
       if(poker.createdBy == idUser){
 
@@ -44,9 +46,9 @@ exports.addUser = async (req, res) => {
           idUser: user.id,
           idPoker: poker.id
         }
-    
+
         const userHasAssoc = await PokerUser.findOne({ where: pokerUserData })
-    
+
         if(userHasAssoc) {
 
           res.status(405).json({  error: true, message: 'Usuário já faz parte do poker.' })
@@ -59,7 +61,7 @@ exports.addUser = async (req, res) => {
           } else {
             res.status(405).send({ error: true, message: 'Erro ao associar usuario ao poker.' })
           }
-          
+
         }
 
       } else {
@@ -77,7 +79,7 @@ exports.addUser = async (req, res) => {
 exports.fromUser = async (req, res) => {
   const idUser = req.decoded.userId
   const user = await Users.findByPk(idUser)
-  
+
   if (user) {
     const allPokers = await user.getAllPokers()
     const data = await Promise.all(
@@ -113,16 +115,16 @@ exports.pokerPlayersById = async (req, res) => {
         return {
           name: user.name,
           email: user.email
-        } 
+        }
       })
-      res.status(200).send( data )       
+      res.status(200).send( data )
     } else {
       res.status(404).send({ error: true, message: "Poker não existe" })
     }
   } else {
     res.status(405).send({ error: true, message: "Erro no corpo da requisição." })
   }
- 
+
 }
 
 exports.deletePoker = async (req, res) => {
@@ -209,7 +211,7 @@ exports.closeAllRounds = async (req, res) => {
 
   await Rounds.update(
     {status: "Closed"},
-    { 
+    {
       where: {
          id: {
            [Op.or]: rounds.map(({id})=> id)
@@ -219,6 +221,94 @@ exports.closeAllRounds = async (req, res) => {
   )
 
   return res.status(200).send({ error: true, message: "Encessados com sucesso" })
+
+exports.getPokerResultByPokerId = async (req, res) => {
+  const pokerId = req.params.id
+  //const poker = await Poker.findByPk(pokerId)
+  var poker = null
+  try {
+    poker = await Poker.findByPk(pokerId, {
+      include: [{
+        model: Stories,
+        as: 'allStories',
+        include: [{
+          model: Round,
+          as: 'allRounds',
+          include: [{
+            model: Vote,
+            as: 'vote',
+          }]
+        }]
+      }]
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({ error: true, message: `Error para retornar o resultado` })
+    return
+  }
+
+  try {
+    const result = { stories: [] };
+    poker.allStories.forEach(story => {
+      var resultStory = {
+        id: story.id,
+        name: story.name,
+        description: story.description,
+        voteCount: 0,
+        voteTotal: 0,
+        voteAverage: 0,
+        voteMedian: 0,
+        voteMin: 99999,
+        voteMax: 0,
+        votes: []
+      }
+      story.allRounds.forEach(round => {
+        console.log(round)
+        if (round.vote.vote) {
+          resultStory.voteCount++
+          resultStory.voteTotal += round.vote.vote
+          if (round.vote.vote > resultStory.voteMax) {
+            resultStory.voteMax = round.vote.vote
+          }
+          if (round.vote.vote < resultStory.voteMin) {
+            resultStory.voteMin = round.vote.vote
+          }
+          resultStory.votes.push({ vote: round.vote.vote, comment: round.vote.comment })
+        }
+      })
+      if (resultStory.voteCount > 0) {
+        // average
+        resultStory.voteAverage = resultStory.voteTotal / resultStory.voteCount
+
+        //median
+        var auxiliarMedianArray = []
+        resultStory.votes.forEach(v => { auxiliarMedianArray.push(v.vote) })
+        resultStory.voteMedian = median(auxiliarMedianArray)
+      }
+      result.stories.push(resultStory)
+    })
+    res.status(200).send(result)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({ error: true, message: `Erro processando resultado` })
+    return
+  }
+}
+
+function median(values){
+  if(values.length ===0) throw new Error("No inputs");
+
+  values.sort(function(a,b){
+    return a-b;
+  });
+
+  var half = Math.floor(values.length / 2);
+
+  if (values.length % 2)
+    return values[half];
+
+  return (values[half - 1] + values[half]) / 2.0;
+}
 
 }
 
@@ -250,7 +340,7 @@ exports.createdByUser = async (req, res) => {
       return key.dataValues
     })
     res.status(200).send(data)
-    
+
   } else {
     res.status(500).send({ error: true, message: "Error para retornar pokers" })
   }
