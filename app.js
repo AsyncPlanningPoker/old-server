@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000
 const app = express()
 
 // For now, remove when merging to master
-db.sequelize.sync({ force: true }).then(() => { console.log('Drop and re-sync db.') })
+// db.sequelize.sync({ force: true }).then(() => { console.log('Drop and re-sync db.') })
 
 app.set('json spaces', 2)
 app.use(cors())

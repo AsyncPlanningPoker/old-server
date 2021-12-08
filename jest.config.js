@@ -20,7 +20,7 @@ module.exports = {
   collectCoverage: true,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
-  collectCoverageFrom: ['./**'], 
+  collectCoverageFrom: ['./controllers/**', './middleware/**', './app.js'], 
 
   // The directory where Jest should output its coverage files
   coverageDirectory: "coverage",
@@ -54,7 +54,8 @@ module.exports = {
   // forceCoverageMatch: [],
 
   // A path to a module which exports an async function that is triggered once before all test suites
-  // globalSetup: undefined,
+  globalSetup: './config/jest/globalSetup.js',
+
 
   // A path to a module which exports an async function that is triggered once after all test suites
   // globalTeardown: undefined,

@@ -42,7 +42,6 @@ exports.create = (req, res) => {
       res.status(201).json({ success: true, id: userId })
     })
     .catch(err => {
-      console.log(err)
       res
         .status(500)
         .send({ error: true, message: "Erro ao criar o usuário." })
