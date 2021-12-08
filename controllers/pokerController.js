@@ -221,6 +221,7 @@ exports.closeAllRounds = async (req, res) => {
   )
 
   return res.status(200).send({ error: true, message: "Encessados com sucesso" })
+}
 
 exports.getPokerResultByPokerId = async (req, res) => {
   const pokerId = req.params.id
@@ -310,7 +311,6 @@ function median(values){
   return (values[half - 1] + values[half]) / 2.0;
 }
 
-}
 
 /*exports.renamePoker = async (req, res) => {
   const idUser = req.decoded.userId

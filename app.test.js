@@ -1,192 +1,68 @@
 const request = require('supertest')
 const app = require('./app')
-const db = require('./database/models')
-
-let userId, userJwt
-let pokerId
-let storyId
-let voteId
-
-// Before any tests run, clear the DB and run migrations with Sequelize sync()
-beforeAll(async () => {
-  await db.sequelize.sync({ force: true })
-})
 
 describe('Health Check', () => {
   it('Get health route', async () => {
     const response = await request(app).get('/health')
     expect(response.status).toBe(200)
-    expect(response.body).toHaveProperty('message')
+    expect(response.body).toHaveProperty('message', 'Server is running!')
   })
 })
 
-describe('Users', () => {
+// describe('Poker', () => {
+//   it('All stories', async () => {
+//     // Find all stories from an poker
+//     const route = `/api/poker/${pokerId}/stories`
+//     const response = await request(app)
+//       .get(route)
+//       .set({Authorization: userJwt})
+    
+//     expect(response.status).toBe(200)
+//   })
+
+// })
+
+
+// describe('Votes', () => {
+//   it('Get vote', async () => {
+//     // Find vote
+//     const route = `/api/vote/${voteId}`
+//     const response = await request(app)
+//       .get(route)
+//       .set({Authorization: userJwt})
+    
+//     expect(response.status).toBe(200)
+//   })
+// })
+
+// describe('Delete', () => {
+//   it('Vote', async () => {
+//     const response = await request(app)
+//       .delete('/api/vote')
+//       .set({Authorization: userJwt})
+//       .send({ idUser: userId, idPoker: pokerId })
+    
+//     expect(response.status).toBe(200)
+//   })
   
+//   it('Story', async () => {
+//     // Delete storie
+//     const route = `/api/story/${storyId}`
+//     const response = await request(app)
+//       .delete(route)
+//       .set({Authorization: userJwt})
 
-  it('Create', async () => {
-    // Creates an user
-    const response = await request(app)
-      .post('/api/users')
-      .send({ name: 'ufabc', password: 'ufabc', email: 'ufabc@ufabc.com' })
-    
-      // Storing userId
-    userId = response.body.id
-    
-    // Expected response from route
-    const expectedObject =  { success: true, id: userId }
-    
-    expect(response.status).toBe(201)
-    expect(response.body).toMatchObject(expectedObject)
-  })
-
-  it('Find One', async () => {
-    // Find specific user
-    const route = `/api/users/${userId}`
-    const response = await request(app)
-      .get(route)
-    
-    // Expected response from route
-    const expectedObject =  { name: 'ufabc', email: 'ufabc@ufabc.com' }
-    
-    expect(response.status).toBe(200)
-    expect(response.body).toMatchObject(expectedObject)
-  })
-
-  it('Auth', async () => {
-    // Auth user
-    const response = await request(app)
-      .post('/api/users/auth')
-      .send({ email: 'ufabc@ufabc.com', password: 'ufabc'})
-    
-    // Storing token
-    userJwt = response.body.token
-
-    expect(response.status).toBe(200)
-    expect(response.body).toHaveProperty('token')
-  })
-})
-
-describe('Poker', () => {
-  it('Create', async () => {
-    // Creat Poker
-    const response = await request(app)
-      .post('/api/poker')
-      .set({Authorization: userJwt})
-      .send({ name: 'LabES', createdBy: 'Gabriel'})
-      
-    // Storing token
-    pokerId = response.body.id
-    
-    // Expected response from route
-    const expectedObject =  { success: true, id: pokerId }
-      
-    expect(response.status).toBe(201)
-    expect(response.body).toMatchObject(expectedObject)
-  })
+//     expect(response.status).toBe(200)
+//   })
   
-  it('Find One', async () => {
-    // Find specific poker
-    const route = `/api/poker/${pokerId}`
-    const response = await request(app)
-      .get(route)
-      .set({Authorization: userJwt})
+//   it('Poker', async () => {
+//     // Find all stories from an poker
+//     const route = `/api/poker/${pokerId}`
+//     const response = await request(app)
+//       .delete(route)
+//       .set({Authorization: userJwt})
     
-    expect(response.status).toBe(200)
-  })
+//     expect(response.status).toBe(200)
+//   })
 
-  it('All stories', async () => {
-    // Find all stories from an poker
-    const route = `/api/poker/${pokerId}/stories`
-    const response = await request(app)
-      .get(route)
-      .set({Authorization: userJwt})
-    
-    expect(response.status).toBe(200)
-  })
-
-})
-
-describe('Stories', () => {
-  it('Create', async () => {
-    const response = await request(app)
-    .post('/api/story/')
-    .set({Authorization: userJwt})
-    .send({ name: 'LabES', description: 'LabEs', idPoker: pokerId })
-
-    // Storing token
-    storyId = response.body.id
-    
-    // Expected response from route
-    const expectedObject =  { success: true, id: storyId }
-
-    expect(response.status).toBe(201)
-    expect(response.body).toMatchObject(expectedObject)
-  })
-
-  it('Find One', async () => {
-    // Find specific story
-    const route = `/api/story/${storyId}`
-    const response = await request(app)
-      .get(route)
-      .set({Authorization: userJwt})
-    
-    expect(response.status).toBe(200)
-  })
-
-})
-
-describe('Votes', () => {
-  it('Story', async () => {
-    // Votes in story
-    const response = await request(app)
-    .post('/api/vote/')
-    .set({Authorization: userJwt})
-    .send({ vote: '1', idPoker: pokerId, idStory: storyId, idUser: userId })
-    
-    voteId = response.body.data.id
-    
-    expect(response.status).toBe(201)
-  })
-
-  it('Get vote', async () => {
-    // Find vote
-    const route = `/api/vote/${voteId}`
-    const response = await request(app)
-      .get(route)
-      .set({Authorization: userJwt})
-    
-    expect(response.status).toBe(200)
-  })
-})
-
-describe('Delete', () => {
-  it('Vote', async () => {
-    const response = await request(app)
-      .delete('/api/vote')
-      .set({Authorization: userJwt})
-      .send({ idUser: userId, idPoker: pokerId })
-    
-    expect(response.status).toBe(200)
-  })
-  
-  it('Story', async () => {
-    // Delete storie
-    const route = `/api/story/${storyId}`
-    const response = await request(app)
-      .delete(route)
-      .set({Authorization: userJwt})
-
-    expect(response.status).toBe(200)
-  })
-  
-  it('Poker', async () => {
-    // Find all stories from an poker
-    const route = `/api/poker/${pokerId}`
-    const response = await request(app)
-      .delete(route)
-      .set({Authorization: userJwt})
-    
-    expect(response.status).toBe(200)
-  })
-
-})
+// })

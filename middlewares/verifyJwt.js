@@ -7,7 +7,7 @@ function (req, res, next) {
   var authorizationSplitted = rawAuthorization.split(' ')
   var authorization = authorizationSplitted[authorizationSplitted.length - 1]
 
-  // Authorization: token
+  // Authorization: `Bearer ${token}`
   // Authorization: Bearer <Token>
   if (authorization) {
     jwt.verify(authorization, secret, (err, decoded) => {

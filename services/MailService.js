@@ -29,6 +29,8 @@ const mailOptions = (to, subject, template, params) => {
 }
 
 exports.sendMail = (to, subject, template, params ) => {
+    if(process.env.NODE_ENV === 'test') return
+
     var options = mailOptions(to, subject, template, params);
     transporter.sendMail(options, function (error, info) {
         if (error) {
