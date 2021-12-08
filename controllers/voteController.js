@@ -1,13 +1,12 @@
 const db = require('../database/models')
-const Round = db.rounds
 const Vote = db.votes
 const PokerUser = db.pokerUsers
 
 exports.voteRound = async (req, res) => {
   const idUser = req.decoded.userId
   const idVote = req.params.idVote
-  const playerVote = req.body.vote
-  const playerComment = req.body.comment
+  const playerVote = req.body.voteNumber
+  const playerComment = req.body.voteComment
 
   const voteOfPlayer = await Vote.findByPk(idVote)
   if(voteOfPlayer && playerVote &&  playerComment) {
@@ -21,7 +20,7 @@ exports.voteRound = async (req, res) => {
         { 
           where: { id: voteOfPlayer.id } 
         })
-        res.status(200).send({ voteId: voteOfPlayer.id})
+        res.status(200).send({ voteId: voteOfPlayer.id })
       } else{
         res.status(406).json({ error: true, message: 'Round já votado.' })
       }

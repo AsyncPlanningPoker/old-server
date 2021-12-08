@@ -70,8 +70,7 @@ exports.findAllRounds = async (req, res) => {
   if (storie) {
     const rounds = await Rounds.findAll({
       where: { idStory },
-      include: { model: PokerUser, as: 'allPokerUsers', where: {idUser}
-     }
+      //include: { model: PokerUser, as: 'allPokerUsers', where: {idUser} }
     })
     res.status(200).send(rounds)
   } else{

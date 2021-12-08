@@ -19,47 +19,72 @@ exports.getRoundResult= async (req, res) => {
     if(player.length == 1) {
 
       if(round.status == "Closed") {
-          const votesOfRound = await Vote.findAll({ where : {idRound: round.id} })
-          let max = votesOfRound[0]
-          let min = votesOfRound[0]
-  
-          votesOfRound.forEach(voteRound => {
-              if(voteRound.vote > max.vote){
-              max = voteRound 
-              }
-              if(voteRound.vote < min.vote){
-              min = voteRound
-              }
-          })
-
-          if(max == min){
-              res.status(200).send({
-                  status: round.status, 
-                  result: max,
-              })
-          } else {
-              res.status(200).send({
-                  status: round.status, 
-                  max: max,
-                  min: min
-              })
+        const nextRound = await Round.findOne({
+          where: {
+            idStory: round.idStory,
+            roundNumber: round.roundNumber + 1 
           }
+        })
+        const votesOfRound = await Vote.findAll({ where : {idRound: round.id} })
+        let max = {
+          voteNumber : votesOfRound[0].vote,
+          voteComment: votesOfRound[0].comment
+        }
+        let min = max
 
-      } else {
-          const voteOfUser = await Vote.findOne({ 
-              where : {
-                  idPokerUser: player[0].id,
-                  idRound: idRound
+        votesOfRound.forEach(voteRound => {
+            if(voteRound.vote > max.voteNumber){
+              max = {
+                voteNumber : voteRound.vote,
+                voteComment: voteRound.comment,
+                nextRoundCreate: nextRound ? true : false
+              } 
+            }
+            if(voteRound.vote < min.voteNumber){
+              min = {
+                voteNumber : voteRound.vote,
+                voteComment: voteRound.comment,
+                nextRoundCreate: nextRound ? true : false
               }
-          })
-          res.status(200).send({
-              status: round.status, 
-              max: null,
-              min: null,
-              voteId: voteOfUser.id
-          })
-      }
+            }
+        })
 
+        if(max == min){
+            res.status(200).send({
+                status: round.status, 
+                result: max,
+            })
+        } else {
+            res.status(200).send({
+                status: round.status, 
+                max: max,
+                min: min
+            })
+        }
+
+    } else {
+      const voteOfUser = await Vote.findOne({ 
+          where : {
+              idPokerUser: player[0].id,
+              idRound: idRound
+          }
+        })
+
+        if(voteOfUser.vote == null){
+          res.status(200).send({
+            status: round.status, 
+            voteId: voteOfUser.id
+          })
+        } else {
+          res.status(200).send({
+            status: round.status,
+            voteOfUser : {
+              voteNumber: voteOfUser.vote,
+              voteComment: voteOfUser.comment
+            }
+          })
+        }
+      }
     } else {
       res.status(406).json({ error: true, message: 'Operação inválida.' })
     }
@@ -77,12 +102,23 @@ exports.createNexRound= async (req, res) => {
   const poker = await Poker.findByPk(story.idPoker)
 
   if(round.status == "Closed" && poker.createdBy == idUser && story){
-    const newRound = await Round.create({
-      roundNumber: round.roundNumber + 1,
-      status: 'Open',
-      idStory: round.idStory
+    const nextRound = await Round.findOne({
+      where: {
+        idStory: round.idStory,
+        roundNumber: round.roundNumber + 1 
+      }
     })
-    res.status(201).send({newRound})
+
+    if(nextRound){
+      res.status(406).json({ error: true, message: 'Round já criado.' })
+    } else {
+      const newRound = await Round.create({
+        roundNumber: round.roundNumber + 1,
+        status: 'Open',
+        idStory: round.idStory
+      })
+      res.status(201).send({newRound})
+    }
   } else {
     res.status(406).json({ error: true, message: 'Operação inválida.' })
   }
