@@ -1,3 +1,5 @@
+const mailService = require("../../services/MailService")
+
 module.exports = (sequelize, Sequelize) => {
   const Round = sequelize.define('rounds', {
       id: {
@@ -28,6 +30,21 @@ module.exports = (sequelize, Sequelize) => {
                   idRound: round.id,
                   idPokerUser: userInPoker.id
                 })
+
+                const user = await models.users.findByPk(userInPoker.idUser)
+                mailService.sendMail(
+                  user.email,
+                  "Novo round criado e pronto para o início votação",
+                  "new-round",
+                  { 
+                    username: user.name,
+                    pokerId: poker.id,
+                    pokerName: poker.name,
+                    storyId: story.id,
+                    storyName: story.name,
+                    roundNumber: round.roundNumber
+                  }
+                )
             })
           }
         }

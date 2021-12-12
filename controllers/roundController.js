@@ -16,74 +16,74 @@ exports.getRoundResult= async (req, res) => {
       return playerOfList.idUser == idUser
     })
 
-    if(player.length == 1) {
+    const pokerOwner = await Poker.findByPk(players[0].idPoker)
+
+    if(player.length == 1 && pokerOwner) {
+
+      const nextRound = await Round.findOne({
+        where: {
+          idStory: round.idStory,
+          roundNumber: round.roundNumber + 1 
+        }
+      })
+      const votesOfRound = await Vote.findAll({ where : {idRound: round.id} })
+      const voteOfUser = await Vote.findOne({ 
+        where : {
+            idPokerUser: player[0].id,
+            idRound: idRound
+        }
+      })
+
+      voteUserObj = {
+        voteNumber: voteOfUser.vote,
+        voteComment: voteOfUser.comment
+      }
 
       if(round.status == "Closed") {
-        const nextRound = await Round.findOne({
-          where: {
-            idStory: round.idStory,
-            roundNumber: round.roundNumber + 1 
-          }
-        })
-        const votesOfRound = await Vote.findAll({ where : {idRound: round.id} })
-        let max = {
+
+        let max = min = {
           voteNumber : votesOfRound[0].vote,
           voteComment: votesOfRound[0].comment
         }
-        let min = max
 
         votesOfRound.forEach(voteRound => {
             if(voteRound.vote > max.voteNumber){
               max = {
                 voteNumber : voteRound.vote,
                 voteComment: voteRound.comment,
-                nextRoundCreate: nextRound ? true : false
               } 
             }
             if(voteRound.vote < min.voteNumber){
               min = {
                 voteNumber : voteRound.vote,
                 voteComment: voteRound.comment,
-                nextRoundCreate: nextRound ? true : false
               }
             }
         })
 
-        if(max == min){
-            res.status(200).send({
-                status: round.status, 
-                result: max,
-            })
-        } else {
-            res.status(200).send({
-                status: round.status, 
-                max: max,
-                min: min
-            })
-        }
-
-    } else {
-      const voteOfUser = await Vote.findOne({ 
-          where : {
-              idPokerUser: player[0].id,
-              idRound: idRound
-          }
+        res.status(200).send({
+          isPokerOwner: pokerOwner.createdBy == idUser ? true : false,
+          status: round.status, 
+          result: min == max ? "Unique" : "NotUnique",
+          voteId: voteOfUser.id,
+          voteUser: voteUserObj,
+          max: max,
+          min: min,
+          nextRoundCreate: nextRound ? true : false
         })
 
-        if(voteOfUser.vote == null){
-          res.status(200).send({
-            status: round.status, 
-            voteId: voteOfUser.id
-          })
-        } else {
-          res.status(200).send({
-            status: round.status,
-            voteOfUser : {
-              voteNumber: voteOfUser.vote,
-              voteComment: voteOfUser.comment
-            }
-          })
-        }
+      } else {
+
+        res.status(200).send({
+          isPokerOwner: pokerOwner.createdBy == idUser ? true : false,
+          status: round.status, 
+          result: "NotDefined",
+          voteId: voteOfUser.id,
+          voteUser: voteUserObj,
+          max: null,
+          min: null,
+          nextRoundCreate: nextRound ? true : false
+        })
       }
     } else {
       res.status(406).json({ error: true, message: 'Operação inválida.' })

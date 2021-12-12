@@ -63,14 +63,12 @@ exports.deleteStory = async (req, res) => {
 
 exports.findAllRounds = async (req, res) => {
   const idStory = req.params.idStory
-  const idUser = req.decoded.userId
 
   const storie = await Stories.findByPk(idStory)
   
   if (storie) {
     const rounds = await Rounds.findAll({
-      where: { idStory },
-      //include: { model: PokerUser, as: 'allPokerUsers', where: {idUser} }
+      where: { idStory }
     })
     res.status(200).send(rounds)
   } else{
