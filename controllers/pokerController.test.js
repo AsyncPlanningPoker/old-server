@@ -184,10 +184,6 @@ describe("Poker controller", () => {
     });
   });
 
-  describe("Close All rounds", () => {
-    it.todo("should be able close all rounds that belong to poker");
-  });
-
 
   describe('Get stories ok poker', () => {
     it.todo('should be able find all stories that belongs to poker');
@@ -197,7 +193,4 @@ describe("Poker controller", () => {
     it.todo('should be able deleta a poker');
   });
 
-  describe('Get results', () => {
-    it.todo('should be able get results a poker');
-  });
 });

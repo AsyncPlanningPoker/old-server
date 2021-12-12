@@ -8,6 +8,7 @@ const { generateToken } = require("../utils");
 const db = require("../database/models");
 
 const Round = db.rounds;
+const Vote = db.votes;
 
 let token = null;
 let userFactory = null;
@@ -26,7 +27,7 @@ describe("Vote controller", () => {
         createdBy: userFactory.id
       });
 
-      await factories.create("pokerUsers", {
+      const pokerUserCreated  = await factories.create("pokerUsers", {
         idUser: userFactory.id,
         idPoker: pokerCreated.id
       });
@@ -39,19 +40,23 @@ describe("Vote controller", () => {
         where: { idStory: storyCreated.id }
       });
 
+      const vote = await Vote.findOne({
+        where: {
+          idRound: round.id,
+          idPokerUser: pokerUserCreated.id
+        }
+      })
+
       const response = await request(app)
-        .post("/api/vote/")
+        .put(`/api/vote/${vote.id}`)
         .set({ Authorization: `Bearer ${token}` })
         .send({
-          vote: "1",
-          idPoker: pokerCreated.id,
-          idStory: storyCreated.id,
-          idUser: userFactory.id,
-          idRound: round.id
+          voteNumber: "1",
+          voteComment: "test",
         });
 
 
-      expect(response.status).toBe(201);
+      expect(response.status).toBe(200);
       expect(response).toHaveProperty(
         "body",
         expect.objectContaining({
@@ -62,7 +67,4 @@ describe("Vote controller", () => {
     });
   });
 
-  describe("Get vote by id", () => {
-    it.todo("should be able get vote given your id");
-  });
 });
